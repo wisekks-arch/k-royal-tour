@@ -956,7 +956,7 @@
     class="fixed bottom-5 left-1/2 -translate-x-1/2 z-50 hidden px-5 py-3 rounded-full bg-slate-900 text-white text-xs font-bold shadow-2xl border border-amber-400">
   </div>
 
-  <script src="assets/data.js?v=20261126_12"></script>
+  <script src="assets/data.js?v=20261126_14"></script>
   <script>
     let currentLocale = localStorage.getItem('kroyal_locale') || 'ko';
     let selectedPkgId = 'busan';
@@ -966,6 +966,191 @@
     let selectedSeats = [];
     let currentSeatFilter = 'all';
     let currentAirportTab = 'ICN';
+
+    const UI_I18N_9 = {
+      errPkgNameEmail: {
+        ko: '⚠️ 대표 예약자 성명과 이메일을 입력해 주세요.',
+        en: '⚠️ Please enter the lead traveler name and email.',
+        vi: '⚠️ Vui lòng nhập họ tên và email người đại diện.',
+        ja: '⚠️ 代表予約者のお名前とメールアドレスを入力してください。',
+        zh: '⚠️ 请输入代表预订人的姓名和邮箱。',
+        th: '⚠️ กรุณากรอกชื่อและอีเมลของผู้จองหลัก',
+        mn: '⚠️ Үндсэн захиалагчийн нэр болон и-мэйл хаягийг оруулна уу.',
+        ru: '⚠️ Пожалуйста, введите имя и email основного заказчика.',
+        tl: '⚠️ Pakilagay ang pangalan at email ng pangunahing nagpa-book.'
+      },
+      errPkgPaxMin: {
+        ko: '⚠️ 성인 또는 소인 인원을 1명 이상 입력해 주세요.',
+        en: '⚠️ Please enter at least 1 adult or child.',
+        vi: '⚠️ Vui lòng nhập ít nhất 1 người lớn hoặc trẻ em.',
+        ja: '⚠️ 大人または小人の人数を1名以上入力してください。',
+        zh: '⚠️ 请输入至少1名成人或儿童。',
+        th: '⚠️ กรุณาระบุจำนวนผู้ใหญ่หรือเด็กอย่างน้อย 1 ท่าน',
+        mn: '⚠️ Насанд хүрэгч эсвэл хүүхдийн тоог 1-ээс дээш оруулна уу.',
+        ru: '⚠️ Укажите хотя бы 1 взрослого или ребенка.',
+        tl: '⚠️ Pakilagay ang hindi bababa sa 1 matanda o bata.'
+      },
+      errPkgGenderSum: {
+        ko: '⚠️ 남성 + 여성 인원 합계가 총 인원(성인+소인)과 일치해야 합니다.',
+        en: '⚠️ Male + Female count must equal total passengers (Adult + Child).',
+        vi: '⚠️ Tổng số Nam + Nữ phải bằng tổng số khách (Người lớn + Trẻ em).',
+        ja: '⚠️ 男性＋女性の合計は総人数（大人＋小人）と一致する必要があります。',
+        zh: '⚠️ 男性与女性人数之和必须等于总人数（成人+儿童）。',
+        th: '⚠️ จำนวนชาย + หญิง ต้องเท่ากับจำนวนผู้เดินทางทั้งหมด (ผู้ใหญ่ + เด็ก)',
+        mn: '⚠️ Эрэгтэй + Эмэгтэй хүний нийлбэр нийт зорчигчийн тоотой (Том хүн + Хүүхэд) тэнцүү байх ёстой.',
+        ru: '⚠️ Сумма мужчин и женщин должна совпадать с общим числом пассажиров.',
+        tl: '⚠️ Ang bilang ng Lalaki + Babae ay dapat tumugma sa kabuuang pasahero.'
+      },
+      errClosedDate: {
+        ko: '⚠️ 선택하신 날짜는 관리자 설정에 의해 예약 마감되었습니다.',
+        en: '⚠️ The selected date is closed for reservations by the administrator.',
+        vi: '⚠️ Ngày bạn chọn đã đóng đặt chỗ theo cài đặt của quản trị viên.',
+        ja: '⚠️ 選択された日付は管理者設定により予約が締め切られています。',
+        zh: '⚠️ 所选日期已被管理员设置为停止预订。',
+        th: '⚠️ วันที่ที่เลือกปิดรับการจองตามการตั้งค่าของผู้ดูแลระบบ',
+        mn: '⚠️ Сонгосон өдөр нь админы тохиргоогоор захиалга хаагдсан байна.',
+        ru: '⚠️ Выбранная дата закрыта для бронирования администратором.',
+        tl: '⚠️ Sarado na ang napiling petsa para sa reservation.'
+      },
+      okPkgBooked: {
+        ko: '🎉 예약 확정! 행사코드 {code} 발급 완료',
+        en: '🎉 Booking Confirmed! Tour Code {code} issued',
+        vi: '🎉 Đặt chỗ thành công! Đã cấp mã tour {code}',
+        ja: '🎉 予約確定！ツアーコード {code} を発行しました',
+        zh: '🎉 预订确认！已签发行程代码 {code}',
+        th: '🎉 ยืนยันการจองสำเร็จ! ออกรหัสทัวร์ {code} แล้ว',
+        mn: '🎉 Захиалга баталгаажлаа! Аяллын код {code} олгогдлоо',
+        ru: '🎉 Бронирование подтверждено! Выдан код {code}',
+        tl: '🎉 Kumpirmado ang Booking! Naibigay ang Tour Code {code}'
+      },
+      okCoupleSeat: {
+        ko: '✨ 동반객 커플 좌석({a} 창측, {b} 내측)이 자동 추천 선택되었습니다!',
+        en: '✨ Companion seats ({a} Window, {b} Aisle) have been auto-selected!',
+        vi: '✨ Đã tự động chọn cặp ghế đôi ({a} Cửa sổ, {b} Lối đi)!',
+        ja: '✨ ペア座席（{a} 窓側、{b} 通路側）を自動選択しました！',
+        zh: '✨ 已为您自动推荐双人连座（{a} 靠窗，{b} 过道）！',
+        th: '✨ เลือกที่นั่งคู่ ({a} ริมหน้าต่าง, {b} ทางเดิน) ให้อัตโนมัติแล้ว!',
+        mn: '✨ Хос суудал ({a} цонх, {b} зах) автоматаар сонгогдлоо!',
+        ru: '✨ Автоматически выбраны парные места ({a} у окна, {b} у прохода)!',
+        tl: '✨ Awtomatikong napili ang magkatabing upuan ({a} Bintana, {b} Pasilyo)!'
+      },
+      errNoCoupleSeat: {
+        ko: '⚠️ 연속된 빈 커플 좌석이 없습니다.',
+        en: '⚠️ No adjacent empty seats are available.',
+        vi: '⚠️ Không còn cặp ghế trống liền kề.',
+        ja: '⚠️ 連続した空きのペア座席がありません。',
+        zh: '⚠️ 没有相邻的空余双人座位。',
+        th: '⚠️ ไม่มีที่นั่งคู่ที่ว่างติดกัน',
+        mn: '⚠️ Зэрэгцээ хоосон хос суудал байхгүй байна.',
+        ru: '⚠️ Нет свободных соседних парных мест.',
+        tl: '⚠️ Walang bakanteng magkatabing upuan.'
+      },
+      errBusSeatEmpty: {
+        ko: '⚠️ 좌석을 1개 이상 선택해 주세요.',
+        en: '⚠️ Please select at least 1 seat.',
+        vi: '⚠️ Vui lòng chọn ít nhất 1 ghế.',
+        ja: '⚠️ 座席を1つ以上選択してください。',
+        zh: '⚠️ 请至少选择1个座位。',
+        th: '⚠️ กรุณาเลือกที่นั่งอย่างน้อย 1 ที่นั่ง',
+        mn: '⚠️ Хамгийн багадаа 1 суудал сонгоно уу.',
+        ru: '⚠️ Пожалуйста, выберите хотя бы 1 место.',
+        tl: '⚠️ Pumili ng hindi bababa sa 1 upuan.'
+      },
+      errBusNameEmail: {
+        ko: '⚠️ 탑승자 성명과 이메일을 입력해 주세요.',
+        en: '⚠️ Please enter passenger name and email.',
+        vi: '⚠️ Vui lòng nhập họ tên và email hành khách.',
+        ja: '⚠️ 乗客のお名前とメールアドレスを入力してください。',
+        zh: '⚠️ 请输入乘客姓名和邮箱。',
+        th: '⚠️ กรุณากรอกชื่อและอีเมลผู้โดยสาร',
+        mn: '⚠️ Зорчигчийн нэр болон и-мэйл хаягийг оруулна уу.',
+        ru: '⚠️ Пожалуйста, введите имя и email пассажира.',
+        tl: '⚠️ Pakilagay ang pangalan at email ng pasahero.'
+      },
+      okBusBooked: {
+        ko: '🎉 리무진 좌석 예매 완료!',
+        en: '🎉 Limousine seat booking completed!',
+        vi: '🎉 Đặt chỗ xe Limousine thành công!',
+        ja: '🎉 リムジン座席の予約が完了しました！',
+        zh: '🎉 豪华大巴座位预订完成！',
+        th: '🎉 จองที่นั่งรถลีมูซีนสำเร็จ!',
+        mn: '🎉 Лимузин автобусны суудлын захиалга амжилттай!',
+        ru: '🎉 Бронирование мест в лимузине завершено!',
+        tl: '🎉 Kumpleto na ang booking ng upuan sa Limousine!'
+      },
+      errAtNameEmail: {
+        ko: '⚠️ 예약자 성명과 이메일을 입력해 주세요.',
+        en: '⚠️ Please enter customer name and email.',
+        vi: '⚠️ Vui lòng nhập họ tên và email người đặt.',
+        ja: '⚠️ 予約者のお名前とメールアドレスを入力してください。',
+        zh: '⚠️ 请输入预订人姓名和邮箱。',
+        th: '⚠️ กรุณากรอกชื่อและอีเมลผู้จอง',
+        mn: '⚠️ Захиалагчийн нэр болон и-мэйл хаягийг оруулна уу.',
+        ru: '⚠️ Пожалуйста, введите имя и email заказчика.',
+        tl: '⚠️ Pakilagay ang pangalan at email ng nagpa-book.'
+      },
+      okAtBooked: {
+        ko: '🎉 공항 픽업 예약 완료!',
+        en: '🎉 Airport pickup booking completed!',
+        vi: '🎉 Đặt xe đón sân bay thành công!',
+        ja: '🎉 空港送迎の予約が完了しました！',
+        zh: '🎉 机场接送预订完成！',
+        th: '🎉 จองรถรับส่งสนามบินสำเร็จ!',
+        mn: '🎉 Онгоцны буудлын тосолтын захиалга амжилттай!',
+        ru: '🎉 Трансфер из аэропорта забронирован!',
+        tl: '🎉 Kumpleto na ang booking ng Airport Pickup!'
+      },
+      errInqCustom: {
+        ko: '⚠️ 성명, 이메일, 요청 내용을 입력해 주세요.',
+        en: '⚠️ Please enter your name, email, and request details.',
+        vi: '⚠️ Vui lòng nhập họ tên, email và nội dung yêu cầu.',
+        ja: '⚠️ お名前・メールアドレス・ご要望内容を入力してください。',
+        zh: '⚠️ 请输入姓名、邮箱和具体需求。',
+        th: '⚠️ กรุณากรอกชื่อ อีเมล และรายละเอียดคำขอ',
+        mn: '⚠️ Нэр, и-мэйл болон хүсэлтийн дэлгэрэнгүйг оруулна уу.',
+        ru: '⚠️ Пожалуйста, введите имя, email и детали запроса.',
+        tl: '⚠️ Pakilagay ang pangalan, email, at detalye ng hiling.'
+      },
+      errInqQna: {
+        ko: '⚠️ 성명, 이메일, 질문 내용을 입력해 주세요.',
+        en: '⚠️ Please enter your name, email, and question.',
+        vi: '⚠️ Vui lòng nhập họ tên, email và nội dung câu hỏi.',
+        ja: '⚠️ お名前・メールアドレス・ご質問内容を入力してください。',
+        zh: '⚠️ 请输入姓名、邮箱和问题内容。',
+        th: '⚠️ กรุณากรอกชื่อ อีเมล และคำถามของคุณ',
+        mn: '⚠️ Нэр, и-мэйл болон асуултаа оруулна уу.',
+        ru: '⚠️ Пожалуйста, введите имя, email и ваш вопрос.',
+        tl: '⚠️ Pakilagay ang pangalan, email, at ang iyong tanong.'
+      },
+      okInqSent: {
+        ko: '📩 문의 접수 완료!',
+        en: '📩 Inquiry submitted!',
+        vi: '📩 Đã gửi yêu cầu tư vấn!',
+        ja: '📩 お問い合わせを受け付けました！',
+        zh: '📩 咨询提交成功！',
+        th: '📩 ส่งคำถามเรียบร้อยแล้ว!',
+        mn: '📩 Таны хүсэлтийг хүлээн авлаа!',
+        ru: '📩 Запрос отправлен!',
+        tl: '📩 Naipadala na ang iyong tanong!'
+      },
+      busMapEmptyHint: {
+        ko: '좌측에서 배정된 버스를 선택하시면 비행기 좌석 스타일의 전체 평면도가 표시됩니다.',
+        en: 'Select an assigned bus on the left to display the airplane-style seat map.',
+        vi: 'Chọn xe buýt ở bên trái để hiển thị sơ đồ ghế ngồi.',
+        ja: '左側でバスを選択すると、航空機スタイルの座席マップが表示されます。',
+        zh: '请在左侧选择大巴班次以显示航空式座位分布图。',
+        th: 'กรุณาเลือกรถบัสด้านซ้ายเพื่อแสดงผังที่นั่ง',
+        mn: 'Зүүн талаас автобусаа сонгосноор суудлын зураглал харагдана.',
+        ru: 'Выберите автобус слева, чтобы увидеть схему салона.',
+        tl: 'Pumili ng bus sa kaliwa upang makita ang mapa ng upuan.'
+      }
+    };
+    function trUi(key, vars = {}) {
+      const m = UI_I18N_9[key] || {};
+      let txt = m[currentLocale] || m.en || key;
+      Object.keys(vars).forEach(k => { txt = txt.split(`{${k}}`).join(vars[k]); });
+      return txt;
+    }
 
     function showToast(msg) {
       const box = document.getElementById('toastBox');
@@ -1328,21 +1513,21 @@
       const male = Math.max(0, parseInt(document.getElementById('pkgMale').value) || 0);
       const female = Math.max(0, parseInt(document.getElementById('pkgFemale').value) || 0);
       if (!custName || !custEmail) {
-        showToast('⚠️ 대표 예약자 성명과 이메일을 입력해 주세요.');
+        showToast(trUi('errPkgNameEmail'));
         return;
       }
       if (adults + children < 1) {
-        showToast('⚠️ 성인 또는 소인 인원을 1명 이상 입력해 주세요.');
+        showToast(trUi('errPkgPaxMin'));
         return;
       }
       if (male + female !== adults + children) {
-        showToast('⚠️ 남성 + 여성 인원 합계가 총 인원(성인+소인)과 일치해야 합니다.');
+        showToast(trUi('errPkgGenderSum'));
         return;
       }
 
       const db = TourStore.getDb();
       if (db.closedDates.includes(startDate)) {
-        showToast('⚠️ 선택하신 날짜는 관리자 설정에 의해 예약 마감되었습니다.');
+        showToast(trUi('errClosedDate'));
         return;
       }
 
@@ -1378,7 +1563,7 @@
       TourStore.saveDb(db);
 
       const noti = TourStore.dispatchAdminNotification('신규 예약', custName, `예약번호: ${resId} / 행사코드: ${tourCode} / 상품: ${q.pkg.name.ko} ${selectedPkgDur} / ${q.transLabel} / 금액: ₩${q.total.toLocaleString()}`);
-      showToast(`🎉 예약 확정! 행사코드 ${tourCode} 발급 완료 (${noti ? noti.subject : ''})`);
+      showToast(trUi('okPkgBooked', { code: tourCode }));
     }
 
     /* 5. [메뉴 3] 리무진버스 항공사 스타일 평면도 좌석 선택 */
@@ -1471,7 +1656,7 @@
       const db = TourStore.getDb();
       const disp = db.busDispatches.find(d => d.id === selectedDispatchId);
       if (!disp) {
-        container.innerHTML = `<div class="py-12 text-center text-xs text-slate-500">좌측에서 배정된 버스를 선택하시면 비행기 좌석 스타일의 전체 평면도가 표시됩니다.</div>`;
+        container.innerHTML = `<div class="py-12 text-center text-xs text-slate-500">${trUi('busMapEmptyHint')}</div>`;
         return;
       }
 
@@ -1479,21 +1664,22 @@
       const rows = bus.grade.includes('21') ? 7 : 9;
 
       const mPick = (m) => m[currentLocale] || m.en;
-      const lblDriver = mPick({ ko: '🧑‍✈️ 운전석 (Driver)', en: '🧑‍✈️ Driver', vi: '🧑‍✈️ Ghế Tài Xế', zh: '🧑‍✈️ 驾驶座', ru: '🧑‍✈️ Водитель' });
-      const lblGuide = mPick({ ko: '🚩 가이드석', en: '🚩 Guide Seat', vi: '🚩 Ghế HDV', zh: '🚩 导游座', ru: '🚩 Гид' });
-      const lblDoor = mPick({ ko: '🚪 출입문 (Door)', en: '🚪 Door', vi: '🚪 Cửa Lên Xuống', zh: '🚪 车门', ru: '🚪 Дверь' });
-      const lblWinLeft = mPick({ ko: '🪟 좌측 창문 (Window)', en: '🪟 Left Window', vi: '🪟 Cửa Sổ Trái', zh: '🪟 左侧车窗', ru: '🪟 Окно слева' });
-      const lblAisleTop = mPick({ ko: '통로 (Aisle)', en: 'Aisle', vi: 'Lối Đi', zh: '过道', ru: 'Проход' });
-      const lblWinRight = mPick({ ko: '우측 독립 창문 (Solo) 🪟', en: 'Right Solo Window 🪟', vi: 'Ghế Đơn Cửa Sổ 🪟', zh: '右侧独立靠窗 🪟', ru: 'Окно справа (Solo) 🪟' });
-      const lblSolo = mPick({ ko: '⭐독립', en: '⭐Solo', vi: '⭐Đơn', zh: '⭐独立', ru: '⭐Соло' });
-      const lblWin = mPick({ ko: '🪟창측', en: '🪟Win', vi: '🪟Cửa', zh: '🪟靠窗', ru: '🪟Окно' });
-      const lblAisle = mPick({ ko: '🚶통로', en: '🚶Aisle', vi: '🚶Lối', zh: '🚶过道', ru: '🚶Пр.' });
-      const lblRear = mPick({ ko: 'REAR LUGGAGE COMPARTMENT (대형 수하물칸)', en: 'REAR LUGGAGE COMPARTMENT', vi: 'KHOANG HÀNH LÝ CỠ LỚN PHÍA SAU', zh: '后部大型行李舱', ru: 'БАГАЖНЫЙ ОТСЕК СЗАДИ' });
+      const lblCockpit = mPick({ ko: '전면 운전석 & 윈드실드', en: 'FRONT COCKPIT & WINDSHIELD', vi: 'BUỒNG LÁI & KÍNH CHẮN GIÓ', ja: 'フロント運転席 & フロントガラス', zh: '前方驾驶舱 & 挡风玻璃', th: 'ห้องคนขับด้านหน้า & กระจกหน้า', mn: 'УРД ЖОЛООЧИЙН БҮХЭЭГ', ru: 'КАБИНА ВОДИТЕЛЯ И ЛОБОВОЕ СТЕКЛО', tl: 'HARAPANG KOKPIT AT WINDSHIELD' });
+      const lblDriver = mPick({ ko: '🧑‍✈️ 운전석 (Driver)', en: '🧑‍✈️ Driver', vi: '🧑‍✈️ Ghế Tài Xế', ja: '🧑‍✈️ 運転席', zh: '🧑‍✈️ 驾驶座', th: '🧑‍✈️ คนขับ', mn: '🧑‍✈️ Жолооч', ru: '🧑‍✈️ Водитель', tl: '🧑‍✈️ Driver' });
+      const lblGuide = mPick({ ko: '🚩 가이드석', en: '🚩 Guide Seat', vi: '🚩 Ghế HDV', ja: '🚩 ガイド席', zh: '🚩 导游座', th: '🚩 ที่นั่งไกด์', mn: '🚩 Хөтөчийн суудал', ru: '🚩 Гид', tl: '🚩 Guide Seat' });
+      const lblDoor = mPick({ ko: '🚪 출입문 (Door)', en: '🚪 Door', vi: '🚪 Cửa Lên Xuống', ja: '🚪 乗降口', zh: '🚪 车门', th: '🚪 ประตูขึ้นลง', mn: '🚪 Орох хаалга', ru: '🚪 Дверь', tl: '🚪 Pinto' });
+      const lblWinLeft = mPick({ ko: '🪟 좌측 창문 (Window)', en: '🪟 Left Window', vi: '🪟 Cửa Sổ Trái', ja: '🪟 左側窓', zh: '🪟 左侧车窗', th: '🪟 หน้าต่างซ้าย', mn: '🪟 Зүүн цонх', ru: '🪟 Окно слева', tl: '🪟 Kaliwang Bintana' });
+      const lblAisleTop = mPick({ ko: '통로 (Aisle)', en: 'Aisle', vi: 'Lối Đi', ja: '通路', zh: '过道', th: 'ทางเดิน', mn: 'Эгнээ хооронд', ru: 'Проход', tl: 'Pasilyo' });
+      const lblWinRight = mPick({ ko: '우측 독립 창문 (Solo) 🪟', en: 'Right Solo Window 🪟', vi: 'Ghế Đơn Cửa Sổ 🪟', ja: '右側独立窓(Solo) 🪟', zh: '右侧独立靠窗 🪟', th: 'หน้าต่างเดี่ยวขวา 🪟', mn: 'Баруун дан цонх 🪟', ru: 'Окно справа (Solo) 🪟', tl: 'Kanang Solo Bintana 🪟' });
+      const lblSolo = mPick({ ko: '⭐독립', en: '⭐Solo', vi: '⭐Đơn', ja: '⭐独立', zh: '⭐独立', th: '⭐เดี่ยว', mn: '⭐Дан', ru: '⭐Соло', tl: '⭐Solo' });
+      const lblWin = mPick({ ko: '🪟창측', en: '🪟Win', vi: '🪟Cửa', ja: '🪟窓側', zh: '🪟靠窗', th: '🪟ริมหน้าต่าง', mn: '🪟Цонх', ru: '🪟Окно', tl: '🪟Bintana' });
+      const lblAisle = mPick({ ko: '🚶통로', en: '🚶Aisle', vi: '🚶Lối', ja: '🚶通路', zh: '🚶过道', th: '🚶ทางเดิน', mn: '🚶Зах', ru: '🚶Пр.', tl: '🚶Pasilyo' });
+      const lblRear = mPick({ ko: 'REAR LUGGAGE COMPARTMENT (대형 수하물칸)', en: 'REAR LUGGAGE COMPARTMENT', vi: 'KHOANG HÀNH LÝ CỠ LỚN PHÍA SAU', ja: '後部大型荷物室', zh: '后部大型行李舱', th: 'ช่องเก็บสัมภาระด้านหลัง', mn: 'АРЫН ТОМ АЧААНЫ ХЭСЭГ', ru: 'БАГАЖНЫЙ ОТСЕК СЗАДИ', tl: 'LALAGYAN NG BAGAHE SA LIKOD' });
 
       let html = `
         <!-- 전면 조종석 / 승하차구 -->
         <div class="border-b-2 border-dashed border-slate-300 pb-3 mb-4">
-          <div class="text-[10px] text-center font-bold text-slate-400 tracking-widest mb-2">FRONT COCKPIT & WINDSHIELD</div>
+          <div class="text-[10px] text-center font-bold text-slate-400 tracking-widest mb-2">${lblCockpit}</div>
           <div class="flex justify-between items-center text-[11px] font-bold">
             <div class="px-3 py-1.5 rounded-lg bg-slate-800 text-white">${lblDriver}</div>
             <div class="px-3 py-1.5 rounded-lg bg-amber-100 text-amber-900 border border-amber-300">${lblGuide}</div>
@@ -1568,11 +1754,11 @@
         if (!disp.bookedSeats.includes(a) && !disp.blockedSeats.includes(a) && !disp.bookedSeats.includes(b) && !disp.blockedSeats.includes(b)) {
           selectedSeats = [a, b];
           renderBusCabinMap();
-          showToast(`✨ 동반객 커플 좌석(${a} 창측, ${b} 내측)이 자동 추천 선택되었습니다!`);
+          showToast(trUi('okCoupleSeat', { a, b }));
           return;
         }
       }
-      showToast('⚠️ 연속된 빈 커플 좌석이 없습니다.');
+      showToast(trUi('errNoCoupleSeat'));
     }
 
     function updateBusSummary() {
@@ -1585,16 +1771,20 @@
           ko: '버스 평면도에서 원하시는 좌석을 클릭해 주세요.',
           en: 'Please click your preferred seats on the bus seat map.',
           vi: 'Vui lòng chọn ghế mong muốn trên sơ đồ xe.',
+          ja: 'バス座席表からご希望の座席をクリックしてください。',
           zh: '请在右侧座位图点击选择您想要的座位。',
-          ru: 'Выберите нужные места на схеме салона автобуса.'
+          th: 'กรุณาคลิกเลือกที่นั่งที่ต้องการบนผังที่นั่งรถบัส',
+          mn: 'Автобусны суудлын зураглал дээр хүссэн суудлаа дарж сонгоно уу.',
+          ru: 'Выберите нужные места на схеме салона автобуса.',
+          tl: 'Paki-click ang iyong gustong upuan sa mapa ng bus.'
         };
         sumEl.innerText = emptyMsgs[currentLocale] || emptyMsgs.en;
         return;
       }
       const bus = db.busFleet.find(b => b.id === disp.busId);
       const total = disp.priceKrw * selectedSeats.length;
-      const seatWord = ({ ko: '좌석', en: 'Seats', vi: 'Ghế', zh: '座位', ru: 'Места' })[currentLocale] || 'Seats';
-      const totalWord = ({ ko: '합계', en: 'Total', vi: 'Tổng', zh: '合计', ru: 'Итого' })[currentLocale] || 'Total';
+      const seatWord = ({ ko: '좌석', en: 'Seats', vi: 'Ghế', ja: '座席', zh: '座位', th: 'ที่นั่ง', mn: 'Суудал', ru: 'Места', tl: 'Upuan' })[currentLocale] || 'Seats';
+      const totalWord = ({ ko: '합계', en: 'Total', vi: 'Tổng', ja: '合計', zh: '合计', th: 'รวม', mn: 'Нийт', ru: 'Итого', tl: 'Kabuuan' })[currentLocale] || 'Total';
       const text = `${disp.date} ${disp.time} · ${trData(disp.route, currentLocale)} · ${bus ? trData(bus.name, currentLocale) : ''} · ${seatWord} [${selectedSeats.join(', ')}] · ${totalWord} ${formatCurrency(total, currentLocale)}`;
       sumEl.innerText = text;
       if (pkgInfo) pkgInfo.innerText = text;
@@ -1604,11 +1794,11 @@
       const name = document.getElementById('busCustName').value.trim();
       const email = document.getElementById('busCustEmail').value.trim();
       if (!selectedDispatchId || selectedSeats.length === 0) {
-        showToast('⚠️ 좌석을 1개 이상 선택해 주세요.');
+        showToast(trUi('errBusSeatEmpty'));
         return;
       }
       if (!name || !email) {
-        showToast('⚠️ 탑승자 성명과 이메일을 입력해 주세요.');
+        showToast(trUi('errBusNameEmail'));
         return;
       }
       const db = TourStore.getDb();
@@ -1640,7 +1830,7 @@
       const noti = TourStore.dispatchAdminNotification('신규 예약', name, `리무진 좌석 예매: ${disp.date} ${disp.time} ${disp.route} 좌석 [${selectedSeats.join(', ')}] (${paxText})`);
       selectedSeats = [];
       renderBusDispatches();
-      showToast(`🎉 리무진 좌석 예매 완료! (${noti ? noti.subject : ''})`);
+      showToast(trUi('okBusBooked'));
     }
 
     /* 6. [메뉴 4] 공항 픽업 */
@@ -1678,7 +1868,7 @@
       const email = document.getElementById('atCustEmail').value.trim();
       const flight = document.getElementById('atFlightInfo').value.trim() || '항공편 추후 전달';
       if (!name || !email) {
-        showToast('⚠️ 예약자 성명과 이메일을 입력해 주세요.');
+        showToast(trUi('errAtNameEmail'));
         return;
       }
       const db = TourStore.getDb();
@@ -1703,7 +1893,7 @@
       });
       TourStore.saveDb(db);
       const noti = TourStore.dispatchAdminNotification('신규 예약', name, `공항 픽업: ${item.routeLabel} / ${item.vehicle} / 항공편: ${flight}`);
-      showToast(`🎉 공항 픽업 예약 완료! (${noti ? noti.subject : ''})`);
+      showToast(trUi('okAtBooked'));
     }
 
     /* 7. [메뉴 5] 여행문의 (양방향 자동 번역) */
@@ -1722,7 +1912,7 @@
         const email = document.getElementById('inqCustEmail').value.trim();
         const detail = document.getElementById('inqDetail').value.trim();
         if (!name || !email || !detail) {
-          showToast('⚠️ 성명, 이메일, 요청 내용을 입력해 주세요.');
+          showToast(trUi('errInqCustom'));
           return;
         }
         entry = {
@@ -1748,7 +1938,7 @@
         const email = document.getElementById('qnaEmail').value.trim();
         const text = document.getElementById('qnaText').value.trim();
         if (!name || !email || !text) {
-          showToast('⚠️ 성명, 이메일, 질문 내용을 입력해 주세요.');
+          showToast(trUi('errInqQna'));
           return;
         }
         entry = {
@@ -1770,13 +1960,13 @@
       TourStore.saveDb(db);
       const noti = TourStore.dispatchAdminNotification('신규 문의', entry.customerName, `[${entry.sourceLocale}] 한국어 번역: ${entry.koTranslatedText}`);
       renderInquiryBoard();
-      showToast(`📩 문의 접수 완료! (${noti ? noti.subject : ''})`);
+      showToast(trUi('okInqSent'));
     }
 
     function renderInquiryBoard() {
       const db = TourStore.getDb();
-      const lblAns = ({ ko: '답변 완료', en: 'Answered', vi: 'Đã Trả Lời', zh: '已回复', ru: 'Отвечено' })[currentLocale] || 'Answered';
-      const lblWait = ({ ko: '답변 대기', en: 'Waiting', vi: 'Đang Chờ', zh: '待回复', ru: 'Ожидание' })[currentLocale] || 'Waiting';
+      const lblAns = ({ ko: '답변 완료', en: 'Answered', vi: 'Đã Trả Lời', ja: '回答済み', zh: '已回复', th: 'ตอบแล้ว', mn: 'Хариулсан', ru: 'Отвечено', tl: 'Nasagot na' })[currentLocale] || 'Answered';
+      const lblWait = ({ ko: '답변 대기', en: 'Waiting', vi: 'Đang Chờ', ja: '回答待ち', zh: '待回复', th: 'รอตอบกลับ', mn: 'Хүлээгдэж буй', ru: 'Ожидание', tl: 'Naghihintay' })[currentLocale] || 'Waiting';
       const lblAdminTr = ({ ko: '관리자용 번역', en: 'Admin Translation', vi: 'Bản dịch cho Admin', zh: '管理员译文', ru: 'Перевод админу' })[currentLocale] || 'Admin Translation';
       const lblAgencyReply = ({ ko: '여행사 답변', en: 'Agency Reply', vi: 'Phản hồi từ K-Royal', zh: '旅行社回复', ru: 'Ответ агентства' })[currentLocale] || 'Agency Reply';
       document.getElementById('inquiryBoardList').innerHTML = db.inquiries.map(inq => {
