@@ -1041,7 +1041,18 @@
       document.getElementById('uiBusStep3').innerText = t('busSelectSeat', currentLocale);
       document.getElementById('btnInqTabCustom').innerText = t('inquiryCustomTab', currentLocale);
       document.getElementById('btnInqTabQna').innerText = t('inquiryQnaTab', currentLocale);
-      document.getElementById('currencyBadge').innerText = currentLocale === 'ko' ? '통화: ₩ KRW 우선 (USD 병기)' : 'Currency: $ USD Priority (KRW)';
+      const currLabels = {
+        ko: '통화: ₩ KRW 우선 (USD 병기)',
+        en: 'Currency: $ USD Priority (KRW)',
+        vi: 'Tiền tệ: $ USD Ưu tiên (KRW)',
+        zh: '货币: $ USD 优先 (KRW)',
+        ru: 'Валюта: $ USD (KRW)',
+        ja: '通貨: $ USD 優先 (KRW)',
+        th: 'สกุลเงิน: $ USD (KRW)',
+        mn: 'Валют: $ USD (KRW)',
+        tl: 'Salapi: $ USD (KRW)'
+      };
+      document.getElementById('currencyBadge').innerText = currLabels[currentLocale] || currLabels.en;
 
       const menuKeys = ['attractions', 'regional', 'limousine', 'airport', 'inquiry', 'faq', 'etc'];
       menuKeys.forEach(k => {
@@ -1396,22 +1407,37 @@
         return;
       }
 
-      const availLabel = currentLocale === 'ko' ? `✅ 운행 가능: ${matched.length}대 배정` : (currentLocale === 'vi' ? `✅ Khả dụng: ${matched.length} xe` : `✅ Available: ${matched.length} Coaches`);
-      badge.innerHTML = `<span class="px-3 py-1 rounded-full bg-teal-100 text-teal-800">${availLabel}</span>`;
+      const availLabels = {
+        ko: `✅ 운행 가능: ${matched.length}대 배정`,
+        en: `✅ Available: ${matched.length} Coaches`,
+        vi: `✅ Khả dụng: ${matched.length} xe`,
+        zh: `✅ 可预订: 已分配 ${matched.length} 台大巴`,
+        ru: `✅ Доступно: ${matched.length} автобуса`,
+        ja: `✅ 運行可能: ${matched.length}台配車`,
+        th: `✅ พร้อมให้บริการ: ${matched.length} คัน`,
+        mn: `✅ Боломжтой: ${matched.length} автобус`,
+        tl: `✅ Available: ${matched.length} Bus`
+      };
+      badge.innerHTML = `<span class="px-3 py-1 rounded-full bg-teal-100 text-teal-800">${availLabels[currentLocale] || availLabels.en}</span>`;
       if (!selectedDispatchId || !matched.some(m => m.id === selectedDispatchId)) {
         selectedDispatchId = matched[0].id;
         selectedSeats = [];
       }
+
+      const depMap = { ko: '출발', en: 'Dep.', vi: 'Khởi hành', zh: '出发', ru: 'Отпр.', ja: '発', th: 'ออกเดินทาง', mn: 'Хөдлөх', tl: 'Alis' };
+      const soldOutMap = { ko: '예약 마감 (Sold Out)', en: 'Sold Out', vi: 'Hết chỗ', zh: '已售罄', ru: 'Мест нет', ja: '満席', th: 'เต็มแล้ว', mn: 'Дүүрсэн', tl: 'Sold Out' };
+      const pickMap = { ko: '탑승', en: 'Pickup', vi: 'Điểm đón', zh: '上车点', ru: 'Посадка', ja: '乗車地', th: 'จุดขึ้นรถ', mn: 'Суух цэг', tl: 'Pickup' };
+      const remMap = { ko: (n) => `잔여 ${n}석`, en: (n) => `${n} Seats Left`, vi: (n) => `Còn ${n} ghế`, zh: (n) => `余 ${n} 座`, ru: (n) => `Свободно: ${n}`, ja: (n) => `残 ${n}席`, th: (n) => `ว่าง ${n} ที่นั่ง`, mn: (n) => `Үлдсэн: ${n}`, tl: (n) => `${n} Bakante` };
 
       listEl.innerHTML = matched.map(d => {
         const bus = db.busFleet.find(b => b.id === d.busId) || { name: '리무진', grade: '28인승 우등', capacity: 28, plate: '' };
         const remain = bus.capacity - d.bookedSeats.length - d.blockedSeats.length;
         const isClosed = d.status !== 'Open' || remain <= 0;
         const isSel = d.id === selectedDispatchId;
-        const depTxt = currentLocale === 'ko' ? '출발' : (currentLocale === 'vi' ? 'Khởi hành' : 'Dep.');
-        const remainTxt = currentLocale === 'ko' ? `잔여 ${remain}석` : (currentLocale === 'vi' ? `Còn ${remain} ghế` : `${remain} Seats Left`);
-        const soldOutTxt = currentLocale === 'ko' ? '예약 마감 (Sold Out)' : (currentLocale === 'vi' ? 'Hết chỗ' : 'Sold Out');
-        const pickTxt = currentLocale === 'ko' ? '탑승' : (currentLocale === 'vi' ? 'Điểm đón' : 'Pickup');
+        const depTxt = depMap[currentLocale] || depMap.en;
+        const remainTxt = (remMap[currentLocale] || remMap.en)(remain);
+        const soldOutTxt = soldOutMap[currentLocale] || soldOutMap.en;
+        const pickTxt = pickMap[currentLocale] || pickMap.en;
         return `
           <div onclick="${isClosed ? '' : `selectedDispatchId='${d.id}'; selectedSeats=[]; renderBusDispatches();`}" class="rounded-xl p-3.5 border-2 transition ${isClosed ? 'bg-slate-100 opacity-60 cursor-not-allowed' : (isSel ? 'border-teal-600 bg-teal-50 cursor-pointer' : 'border-slate-200 hover:border-teal-400 cursor-pointer')}">
             <div class="flex items-center justify-between text-xs mb-1">
@@ -1452,16 +1478,17 @@
       const bus = db.busFleet.find(b => b.id === disp.busId) || { grade: '28인승 우등', capacity: 28 };
       const rows = bus.grade.includes('21') ? 7 : 9;
 
-      const lblDriver = currentLocale === 'ko' ? '🧑‍✈️ 운전석 (Driver)' : (currentLocale === 'vi' ? '🧑‍✈️ Ghế Tài Xế' : '🧑‍✈️ Driver');
-      const lblGuide = currentLocale === 'ko' ? '🚩 가이드석' : (currentLocale === 'vi' ? '🚩 Ghế HDV' : '🚩 Guide Seat');
-      const lblDoor = currentLocale === 'ko' ? '🚪 출입문 (Door)' : (currentLocale === 'vi' ? '🚪 Cửa Lên Xuống' : '🚪 Door');
-      const lblWinLeft = currentLocale === 'ko' ? '🪟 좌측 창문 (Window)' : (currentLocale === 'vi' ? '🪟 Cửa Sổ Trái' : '🪟 Left Window');
-      const lblAisleTop = currentLocale === 'ko' ? '통로 (Aisle)' : (currentLocale === 'vi' ? 'Lối Đi' : 'Aisle');
-      const lblWinRight = currentLocale === 'ko' ? '우측 독립 창문 (Solo) 🪟' : (currentLocale === 'vi' ? 'Ghế Đơn Cửa Sổ 🪟' : 'Right Solo Window 🪟');
-      const lblSolo = currentLocale === 'ko' ? '⭐독립' : (currentLocale === 'vi' ? '⭐Đơn' : '⭐Solo');
-      const lblWin = currentLocale === 'ko' ? '🪟창측' : (currentLocale === 'vi' ? '🪟Cửa' : '🪟Win');
-      const lblAisle = currentLocale === 'ko' ? '🚶통로' : (currentLocale === 'vi' ? '🚶Lối' : '🚶Aisle');
-      const lblRear = currentLocale === 'ko' ? 'REAR LUGGAGE COMPARTMENT (대형 수하물칸)' : (currentLocale === 'vi' ? 'KHOANG HÀNH LÝ CỠ LỚN PHÍA SAU' : 'REAR LUGGAGE COMPARTMENT');
+      const mPick = (m) => m[currentLocale] || m.en;
+      const lblDriver = mPick({ ko: '🧑‍✈️ 운전석 (Driver)', en: '🧑‍✈️ Driver', vi: '🧑‍✈️ Ghế Tài Xế', zh: '🧑‍✈️ 驾驶座', ru: '🧑‍✈️ Водитель' });
+      const lblGuide = mPick({ ko: '🚩 가이드석', en: '🚩 Guide Seat', vi: '🚩 Ghế HDV', zh: '🚩 导游座', ru: '🚩 Гид' });
+      const lblDoor = mPick({ ko: '🚪 출입문 (Door)', en: '🚪 Door', vi: '🚪 Cửa Lên Xuống', zh: '🚪 车门', ru: '🚪 Дверь' });
+      const lblWinLeft = mPick({ ko: '🪟 좌측 창문 (Window)', en: '🪟 Left Window', vi: '🪟 Cửa Sổ Trái', zh: '🪟 左侧车窗', ru: '🪟 Окно слева' });
+      const lblAisleTop = mPick({ ko: '통로 (Aisle)', en: 'Aisle', vi: 'Lối Đi', zh: '过道', ru: 'Проход' });
+      const lblWinRight = mPick({ ko: '우측 독립 창문 (Solo) 🪟', en: 'Right Solo Window 🪟', vi: 'Ghế Đơn Cửa Sổ 🪟', zh: '右侧独立靠窗 🪟', ru: 'Окно справа (Solo) 🪟' });
+      const lblSolo = mPick({ ko: '⭐독립', en: '⭐Solo', vi: '⭐Đơn', zh: '⭐独立', ru: '⭐Соло' });
+      const lblWin = mPick({ ko: '🪟창측', en: '🪟Win', vi: '🪟Cửa', zh: '🪟靠窗', ru: '🪟Окно' });
+      const lblAisle = mPick({ ko: '🚶통로', en: '🚶Aisle', vi: '🚶Lối', zh: '🚶过道', ru: '🚶Пр.' });
+      const lblRear = mPick({ ko: 'REAR LUGGAGE COMPARTMENT (대형 수하물칸)', en: 'REAR LUGGAGE COMPARTMENT', vi: 'KHOANG HÀNH LÝ CỠ LỚN PHÍA SAU', zh: '后部大型行李舱', ru: 'БАГАЖНЫЙ ОТСЕК СЗАДИ' });
 
       let html = `
         <!-- 전면 조종석 / 승하차구 -->
@@ -1554,13 +1581,20 @@
       const sumEl = document.getElementById('selectedBusSummary');
       const pkgInfo = document.getElementById('pkgLimousineSelectedInfo');
       if (!disp || selectedSeats.length === 0) {
-        sumEl.innerText = currentLocale === 'ko' ? '버스 평면도에서 원하시는 좌석을 클릭해 주세요.' : (currentLocale === 'vi' ? 'Vui lòng chọn ghế mong muốn trên sơ đồ xe.' : 'Please click your preferred seats on the bus seat map.');
+        const emptyMsgs = {
+          ko: '버스 평면도에서 원하시는 좌석을 클릭해 주세요.',
+          en: 'Please click your preferred seats on the bus seat map.',
+          vi: 'Vui lòng chọn ghế mong muốn trên sơ đồ xe.',
+          zh: '请在右侧座位图点击选择您想要的座位。',
+          ru: 'Выберите нужные места на схеме салона автобуса.'
+        };
+        sumEl.innerText = emptyMsgs[currentLocale] || emptyMsgs.en;
         return;
       }
       const bus = db.busFleet.find(b => b.id === disp.busId);
       const total = disp.priceKrw * selectedSeats.length;
-      const seatWord = currentLocale === 'ko' ? '좌석' : (currentLocale === 'vi' ? 'Ghế' : 'Seats');
-      const totalWord = currentLocale === 'ko' ? '합계' : (currentLocale === 'vi' ? 'Tổng' : 'Total');
+      const seatWord = ({ ko: '좌석', en: 'Seats', vi: 'Ghế', zh: '座位', ru: 'Места' })[currentLocale] || 'Seats';
+      const totalWord = ({ ko: '합계', en: 'Total', vi: 'Tổng', zh: '合计', ru: 'Итого' })[currentLocale] || 'Total';
       const text = `${disp.date} ${disp.time} · ${trData(disp.route, currentLocale)} · ${bus ? trData(bus.name, currentLocale) : ''} · ${seatWord} [${selectedSeats.join(', ')}] · ${totalWord} ${formatCurrency(total, currentLocale)}`;
       sumEl.innerText = text;
       if (pkgInfo) pkgInfo.innerText = text;
@@ -1617,7 +1651,7 @@
 
       const db = TourStore.getDb();
       const items = db.airportTransfers.filter(a => a.airport === airport);
-      const langLbl = currentLocale === 'ko' ? '가능 언어' : (currentLocale === 'vi' ? 'Ngôn ngữ' : 'Languages');
+      const langLbl = ({ ko: '가능 언어', en: 'Languages', vi: 'Ngôn ngữ', zh: '支持语言', ru: 'Языки' })[currentLocale] || 'Languages';
       document.getElementById('airportCardsGrid').innerHTML = items.map(a => `
         <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
           <div class="flex justify-between items-start mb-2">
@@ -1741,10 +1775,10 @@
 
     function renderInquiryBoard() {
       const db = TourStore.getDb();
-      const lblAns = currentLocale === 'ko' ? '답변 완료' : (currentLocale === 'vi' ? 'Đã Trả Lời' : 'Answered');
-      const lblWait = currentLocale === 'ko' ? '답변 대기' : (currentLocale === 'vi' ? 'Đang Chờ' : 'Waiting');
-      const lblAdminTr = currentLocale === 'ko' ? '관리자용 번역' : (currentLocale === 'vi' ? 'Bản dịch cho Admin' : 'Admin Translation');
-      const lblAgencyReply = currentLocale === 'ko' ? '여행사 답변' : (currentLocale === 'vi' ? 'Phản hồi từ K-Royal' : 'Agency Reply');
+      const lblAns = ({ ko: '답변 완료', en: 'Answered', vi: 'Đã Trả Lời', zh: '已回复', ru: 'Отвечено' })[currentLocale] || 'Answered';
+      const lblWait = ({ ko: '답변 대기', en: 'Waiting', vi: 'Đang Chờ', zh: '待回复', ru: 'Ожидание' })[currentLocale] || 'Waiting';
+      const lblAdminTr = ({ ko: '관리자용 번역', en: 'Admin Translation', vi: 'Bản dịch cho Admin', zh: '管理员译文', ru: 'Перевод админу' })[currentLocale] || 'Admin Translation';
+      const lblAgencyReply = ({ ko: '여행사 답변', en: 'Agency Reply', vi: 'Phản hồi từ K-Royal', zh: '旅行社回复', ru: 'Ответ агентства' })[currentLocale] || 'Agency Reply';
       document.getElementById('inquiryBoardList').innerHTML = db.inquiries.map(inq => {
         const replyShow = inq.adminReplyKo
           ? (currentLocale === 'ko' ? inq.adminReplyKo : (inq.translatedReply || autoTranslateText(inq.adminReplyKo, 'ko', currentLocale)))
@@ -1861,6 +1895,15 @@
         playIntroAnimation();
       } else {
         document.getElementById('hanokIntroOverlay').classList.add('hidden-intro');
+      }
+    });
+
+    // 어드민(/admin)에서 활성 언어를 변경하면 고객 사이트 탭에 즉시 반영
+    window.addEventListener('storage', (e) => {
+      if (e.key === DB_STORAGE_KEY) {
+        renderLanguageSwitcher();
+        applyI18n();
+        renderAllSections();
       }
     });
   </script>
