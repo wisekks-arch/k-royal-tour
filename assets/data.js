@@ -1,7 +1,7 @@
 /**
  * K-Royal Inbound Tour — 통합 다국어(i18n) · 양방향 번역 · 알림 어댑터 · 로컬 DB 코어
  */
-const DB_STORAGE_KEY = 'K_ROYAL_TOUR_DB_V8';
+const DB_STORAGE_KEY = 'K_ROYAL_TOUR_DB_V9';
 const EXCHANGE_RATE_KRW_PER_USD = 1380;
 
 const LANGUAGE_CATALOG = [
@@ -561,6 +561,12 @@ const DYNAMIC_DICT = {
     ['남해 독일마을 & 다랭이마을 드라이브', 'Namhae German & Daraengi Village'], ['여수 핵심 투어 & 케이블카', 'Yeosu Highlights & Cable Car'], ['광주송정역', 'Gwangju Songjeong Stn'], ['양림동 펭귄마을', 'Yangnim Penguin Village'], ['무등산 케이블카', 'Mudeungsan Cable Car'], ['담양 죽녹원 & 떡갈비', 'Damyang Bamboo Forest & Tteokgalbi'],
     ['임진각 평화누리', 'Imjingak Pyeonghoa-Nuri'], ['제3땅굴', '3rd Tunnel'], ['도라전망대', 'Dora Observatory'], ['헤이리 예술마을', 'Heyri Art Village'], ['파주 프리미엄 아울렛', 'Paju Premium Outlets'], ['마장호수 출렁다리', 'Majang Lake Bridge'], ['강원도 춘천 남이섬 & 설악산 연계', 'Nami Island & Mt. Seoraksan'],
     ['부산 도착', 'Arrive in Busan'], ['서울 출발', 'Depart Seoul'], ['서울/리무진 이동', 'Seoul/Limousine Transfer'], ['리무진 이동', 'Limousine Transfer'], ['KTX/리무진 복귀', 'Return via KTX/Limousine'], ['복귀', 'Return'], ['한국어', 'Korean'],
+    ['면세점 직결 & 서면 도심 야외 수영장', 'Direct Duty-Free Access & Outdoor Pool'],
+    ['경복궁 전망 & 미쉐린 레스토랑 보유', 'Gyeongbokgung View & Michelin Dining'],
+    ['하회마을 인접 신축 & 낙동강 뷰', 'Modern Hotel near Hahoe Village & River View'],
+    ['전 객실 오션 테라스 & 야외 온수풀', 'All-Room Ocean Terrace & Heated Outdoor Pool'],
+    ['상무지구 중심 & 스마트 레지던스', 'Sangmu District Center & Smart Residence'],
+    ['임진각·헤이리 마을 차량 15분 거리', '15 min drive to Imjingak & Heyri Art Village'],
     ['리무진/렌터카', 'Limousine / Rental Car'], ['결제/취소', 'Payment & Cancellation'], ['입국/비자', 'Entry & Visa'], ['멀티 공항', 'Multi-Airport'], ['리무진버스', 'Limousine Bus'], ['숙박/호텔', 'Hotels & Stays'], ['관광지/입장권', 'Attractions & Tickets'], ['식사/할랄·채식', 'Meals / Halal & Vegan'], ['결제/통화', 'Payment & Currency'], ['통신/유심', 'SIM & Wi-Fi'], ['비상/안전', 'Emergency & Safety']
   ],
   vi: [
@@ -600,12 +606,36 @@ const DYNAMIC_DICT = {
     ['명동·을지로 도보 1분, 최고급 컨시어지', 'Cách Myeongdong 1 phút đi bộ, dịch vụ 5 sao'],
     ['경복궁·인사동 인접 깔끔한 모던 객실', 'Phòng hiện đại gần Cung điện Gyeongbokgung & Insadong'],
     ['130년 전통 기와 한옥 & 황토 찜질방', 'Nhà cổ Hanok 130 năm & Phòng xông hơi đất sét'],
-    ['김해공항 픽업', 'Đón sân bay Gimhae'], ['인천공항 픽업', 'Đón sân bay Incheon'], ['공항 픽업', 'Đón sân bay'], ['공항/KTX 샌딩', 'Tiễn sân bay/Ga KTX'], ['공항 샌딩', 'Tiễn sân bay'],
-    ['감천문화마을', 'Làng văn hóa Gamcheon'], ['자갈치시장', 'Chợ hải sản Jagalchi'], ['광안리 야경', 'Cảnh đêm Gwangalli'], ['송도해상케이블카', 'Cáp treo biển Songdo'],
+    ['유서 깊은 고택 스테이 & 한식 정찬', 'Lưu trú nhà cổ lịch sử & Ẩm thực truyền thống'],
+    ['보문호수 전망 & 가족형 리조트', 'View hồ Bomun & Resort gia đình'],
+    ['여수 밤바다 오동도 파노라마 뷰', 'View biển đêm Yeosu & Đảo Odongdo'],
+    ['루프탑 인피니티풀 & 해상 짚트랙', 'Hồ bơi vô cực sân thượng & Đu dây Zipline'],
+    ['김대중컨벤션센터 인접 인터내셔널 호텔', 'Khách sạn quốc tế gần Trung tâm Hội nghị'],
+    ['ACC·충장로 도보 3분 최적 위치', 'Vị trí đắc địa cách ACC & Chungjang-ro 3 phút'],
+    ['DMZ·인천공항 30분 거리 최적 거점', 'Cách DMZ & Sân bay Incheon 30 phút'],
+    ['면세점 직결 & 서면 도심 야외 수영장', 'Kết nối cửa hàng miễn thuế & Hồ bơi ngoài trời'],
+    ['경복궁 전망 & 미쉐린 레스토랑 보유', 'View Cung điện Gyeongbokgung & Nhà hàng Michelin'],
+    ['하회마을 인접 신축 & 낙동강 뷰', 'Khách sạn mới gần Làng cổ Hahoe & View sông'],
+    ['전 객실 오션 테라스 & 야외 온수풀', 'Ban công hướng biển & Hồ bơi nước ấm ngoài trời'],
+    ['상무지구 중심 & 스마트 레지던스', 'Trung tâm khu Sangmu & Căn hộ thông minh'],
+    ['임진각·헤이리 마을 차량 15분 거리', 'Cách Công viên Imjingak & Làng Heyri 15 phút xe'],
+    ['김해공항 픽업', 'Đón sân bay Gimhae'], ['인천공항 픽업', 'Đón sân bay Incheon'], ['공항 픽업', 'Đón sân bay'], ['공항/KTX 샌딩', 'Tiễn sân bay/Ga KTX'], ['공항 샌딩', 'Tiễn sân bay'], ['인천공항 출국 샌딩', 'Tiễn sân bay Incheon'],
+    ['감천문화마을', 'Làng văn hóa Gamcheon'], ['자갈치시장', 'Chợ hải sản Jagalchi'], ['광안리 야경', 'Cảnh đêm Gwangalli'], ['광안리 루프탑', 'Rooftop Gwangalli'], ['송도해상케이블카', 'Cáp treo biển Songdo'],
     ['해운대 블루라인파크', 'Công viên Haeundae Blueline'], ['해운대 스카이캡슐', 'Tàu trên cao Sky Capsule'], ['해동용궁사', 'Chùa Haedong Yonggungsa'], ['기장 대게 특식', 'Đặc sản Cua hoàng đế Gijang'],
-    ['경주 불국사·황리단길 당일 연계 투어', 'Tour ngày Chùa Bulguksa & Phố Hwangnidan'], ['부산 복귀', 'Về lại Busan'], ['서울 복귀', 'Về lại Seoul'], ['자유 쇼핑', 'Tự do mua sắm'],
+    ['경주 불국사·황리단길 당일 연계 투어', 'Tour ngày Chùa Bulguksa & Phố Hwangnidan'], ['부산 복귀', 'Về lại Busan'], ['서울 복귀', 'Về lại Seoul'], ['자유 쇼핑', 'Tự do mua sắm'], ['부산 또는 서울 공항 연결 샌딩', 'Tiễn sân bay Busan hoặc Seoul'], ['부산 김해공항 또는 서울 복귀', 'Sân bay Gimhae hoặc về Seoul'],
+    ['센텀시티 면세쇼핑', 'Mua sắm miễn thuế Centum City'], ['영도 흰여울문화마을', 'Làng văn hóa Huinnyeoul Yeongdo'], ['남포동 BIFF거리', 'Phố điện ảnh Nampodong BIFF'], ['달맞이길', 'Đồi Dalmaji'], ['송정 서핑/카페', 'Lướt sóng & Cafe Songjeong'], ['범어사 산사체험', 'Trải nghiệm Chùa Beomeosa'], ['온천장', 'Suối nước nóng Oncheonjang'],
     ['경복궁 한복투어', 'Tham quan Gyeongbokgung mặc Hanbok'], ['경복궁', 'Cung điện Gyeongbokgung'], ['북촌한옥마을', 'Làng cổ Bukchon'], ['명동', 'Myeongdong'], ['남산 N서울타워', 'Tháp Namsan Seoul'], ['성수동 핫플', 'Phố thời trang Seongsu'], ['한강 크루즈', 'Du thuyền sông Hàn'],
-    ['한국어', 'Tiếng Hàn'],
+    ['인사동 쌈지길', 'Phố cổ Insadong'], ['청계천·명동 난타공연', 'Suối Cheonggyecheon & Show NANTA'], ['롯데월드타워 서울스카이', 'Tháp Lotte World Seoul Sky'], ['코엑스 별마당도서관', 'Thư viện Starfield COEX'], ['강남 K-POP 거리', 'Phố K-POP Gangnam'],
+    ['홍대/연남동 투어', 'Phố trẻ Hongdae & Yeonnam'], ['광장시장 미식', 'Ẩm thực Chợ Gwangjang'], ['더현대 서울 쇼핑', 'Mua sắm The Hyundai Seoul'], ['용인 한국민속촌 또는 에버랜드 종일 투어', 'Làng dân tộc hoặc Everland cả ngày'], ['DMZ 안보투어(반일)', 'Tour DMZ nửa ngày'], ['홍대 나이트라이프', 'Cuộc sống về đêm Hongdae'],
+    ['고궁·한옥마을', 'Cung điện & Làng Hanok'], ['종로 전통찻집', 'Quán trà truyền thống Jongno'], ['안동 하회마을·부용대', 'Làng cổ Hahoe & Vách đá Buyongdae'], ['안동 하회마을', 'Làng cổ Hahoe Andong'], ['월영교 야경', 'Cầu gỗ Wolyeonggyo về đêm'], ['월영교', 'Cầu Wolyeonggyo'],
+    ['도산서원', 'Thư viện cổ Dosan Seowon'], ['안동 찜닭 거리', 'Phố gà hầm Andong'], ['탈춤공연', 'Biểu diễn múa mặt nạ'], ['경주 이동', 'Di chuyển đến Gyeongju'], ['불국사·석굴암', 'Chùa Bulguksa & Hang Seokguram'], ['황리단길·동궁과 월지', 'Phố Hwangnidan & Hồ Wolji'], ['대릉원·첨성대', 'Lăng mộ Daereungwon & Đài Cheomseongdae'],
+    ['병산서원 & 봉정사', 'Byeongsan Seowon & Chùa Bongjeongsa'], ['경주 세계유산 올데이 투어', 'Tour Di sản Thế giới Gyeongju'], ['한옥 숙박', 'Nghỉ đêm nhà cổ Hanok'], ['여수 도착', 'Đến Yeosu'], ['오동도', 'Đảo Odongdo'], ['해상케이블카', 'Cáp treo vượt biển'], ['낭만포차', 'Phố đêm lãng mạn Pocha'],
+    ['향일암 일출', 'Ngắm bình minh Chùa Hyangiram'], ['아쿠아플라넷', 'Thủy cung Aqua Planet'], ['여수 게장백반', 'Cơm ghẹ ngâm tương Yeosu'], ['이순신광장', 'Quảng trường Yi Sun-sin'], ['여수 밤바다 크루즈', 'Du thuyền đêm Yeosu'], ['순천만 국가정원·습지 연계', 'Vườn quốc gia Suncheon Bay'], ['여수 예술랜드', 'Công viên Nghệ thuật Yeosu'], ['돌산갓김치 체험', 'Làm kim chi cải Dolsan'],
+    ['남해 독일마을 & 다랭이마을 드라이브', 'Làng Đức & Làng ruộng bậc thang Namhae'], ['여수 핵심 투어 & 케이블카', 'Tour điểm nhấn Yeosu & Cáp treo'], ['광주송정역', 'Ga Gwangju Songjeong'], ['1913송정역시장', 'Chợ 1913 Songjeong'], ['양림동 펭귄마을', 'Làng Chim cánh cụt Yangnim'], ['ACC', 'Trung tâm Văn hóa ACC'], ['무등산 케이블카', 'Cáp treo núi Mudeungsan'], ['담양 죽녹원 & 떡갈비', 'Rừng trúc Damyang & Chả sườn'],
+    ['광주 도심 예술투어 & 한정식', 'Tour nghệ thuật Gwangju & Cơm truyền thống'], ['담양 죽녹원·메타세쿼이아길', 'Rừng trúc & Đường thủy sam Damyang'], ['보성 녹차밭', 'Đồi chè Boseong'], ['전주 한옥마을 경유', 'Ghé thăm Làng Hanok Jeonju'], ['광주·담양 투어', 'Tour Gwangju & Damyang'], ['목포 해상케이블카 & 홍어/낙지 미식', 'Cáp treo biển Mokpo & Ẩm thực hải sản'],
+    ['임진각 평화누리', 'Công viên Hòa bình Imjingak'], ['제3땅굴', 'Đường hầm số 3'], ['도라전망대', 'Đài quan sát Dora'], ['헤이리 예술마을', 'Làng nghệ thuật Heyri'], ['파주 프리미엄 아울렛', 'Trung tâm mua sắm Paju Outlet'], ['마장호수 출렁다리', 'Cầu treo hồ Majang'], ['강원도 춘천 남이섬 & 설악산 연계', 'Đảo Nami & Núi Seoraksan'],
+    ['DMZ 핵심 안보코스(여권 필수)', 'Tour DMZ trọng điểm (Cần hộ chiếu)'], ['파주 출판도시 & 감악산 출렁다리', 'Thành phố Sách Paju & Cầu treo'], ['서울 경복궁·명동 쇼핑 연계', 'Kết hợp Gyeongbokgung & Mua sắm Myeongdong'], ['DMZ 안보투어', 'Tour khu phi quân sự DMZ'],
+    ['부산 도착', 'Đến Busan'], ['서울 출발', 'Khởi hành từ Seoul'], ['서울/리무진 이동', 'Đi xe Limousine/Seoul'], ['리무진 이동', 'Đi xe Limousine'], ['KTX/리무진 복귀', 'Về bằng tàu KTX/Limousine'], ['복귀', 'Trở về'], ['출국', 'Xuất cảnh'], ['한국어', 'Tiếng Hàn'],
     ['리무진/렌터카', 'Limousine / Thuê xe'], ['결제/취소', 'Thanh toán & Hủy'], ['입국/비자', 'Nhập cảnh & Visa'], ['멀티 공항', 'Đa sân bay'], ['리무진버스', 'Xe Limousine'], ['숙박/호텔', 'Khách sạn'], ['관광지/입장권', 'Tham quan & Vé'], ['식사/할랄·채식', 'Ẩm thực / Halal & Chay'], ['결제/통화', 'Thanh toán & Tiền tệ'], ['통신/유심', 'SIM & Wi-Fi'], ['비상/안전', 'Khẩn cấp & An toàn']
   ]
 };
@@ -699,9 +729,10 @@ function getInitialDb() {
           '4D3N': ['Day 1: 김해공항 픽업 ➔ 감천문화마을 ➔ 송도해상케이블카', 'Day 2: 해운대 블루라인파크 ➔ 해동용궁사 ➔ 기장 대게 특식', 'Day 3: 경주 불국사·황리단길 당일 연계 투어 ➔ 부산 복귀', 'Day 4: 자유 쇼핑 & 김해공항/서울 리무진 이동']
         },
         hotels: [
-          { id: 'h_bs_1', name: { ko: '파라다이스 호텔 부산 (해운대 5성급)', en: 'Paradise Hotel Busan (5★ Oceanfront)' }, grade: '5★ 특급', pricePerNightKrw: 340000, breakfast: true, feature: '해운대 오션뷰 & 야외 온천 씨메르', extUrl: 'https://www.busanparadisehotel.co.kr' },
-          { id: 'h_bs_2', name: { ko: '시그니엘 부산 (엘시티 5성급)', en: 'SIGNIEL Busan (5★ Luxury)' }, grade: '5★ 럭셔리', pricePerNightKrw: 420000, breakfast: true, feature: '초고층 파노라마 해변뷰 인피니티풀', extUrl: 'https://www.lottehotel.com/busan-signiel' },
-          { id: 'h_bs_3', name: { ko: 'H-에비뉴 광안리 호텔 (4성급 부티크)', en: 'H-Avenue Hotel Gwangalli (4★)' }, grade: '4★ 오션뷰', pricePerNightKrw: 165000, breakfast: true, feature: '광안대교 정면 뷰 & 테라스 루프탑', extUrl: 'https://www.visitbusan.net' }
+          { id: 'h_bs_1', name: { ko: '파라다이스 호텔 부산 (해운대 5성급)', en: 'Paradise Hotel Busan (5★ Oceanfront)', vi: 'Khách sạn Paradise Busan (5★ Hướng biển)' }, grade: '5★ 특급', pricePerNightKrw: 340000, breakfast: true, feature: '해운대 오션뷰 & 야외 온천 씨메르', extUrl: 'https://www.busanparadisehotel.co.kr' },
+          { id: 'h_bs_2', name: { ko: '시그니엘 부산 (엘시티 5성급)', en: 'SIGNIEL Busan (5★ Luxury)', vi: 'SIGNIEL Busan (5★ Sang trọng)' }, grade: '5★ 럭셔리', pricePerNightKrw: 420000, breakfast: true, feature: '초고층 파노라마 해변뷰 인피니티풀', extUrl: 'https://www.lottehotel.com/busan-signiel' },
+          { id: 'h_bs_3', name: { ko: 'H-에비뉴 광안리 호텔 (4성급 부티크)', en: 'H-Avenue Hotel Gwangalli (4★)', vi: 'Khách sạn H-Avenue Gwangalli (4★)' }, grade: '4★ 오션뷰', pricePerNightKrw: 165000, breakfast: true, feature: '광안대교 정면 뷰 & 테라스 루프탑', extUrl: 'https://www.visitbusan.net' },
+          { id: 'h_bs_4', name: { ko: '롯데호텔 부산 (서면 5성급)', en: 'LOTTE Hotel Busan (5★ Seomyeon)', vi: 'Khách sạn LOTTE Busan (5★ Seomyeon)' }, grade: '5★ 특급', pricePerNightKrw: 240000, breakfast: true, feature: '면세점 직결 & 서면 도심 야외 수영장', extUrl: 'https://www.lottehotel.com/busan-hotel' }
         ]
       },
       {
@@ -716,9 +747,10 @@ function getInitialDb() {
           '4D3N': ['Day 1: 고궁·한옥마을 ➔ 종로 전통찻집', 'Day 2: DMZ 안보투어(반일) ➔ 홍대 나이트라이프', 'Day 3: 용인 한국민속촌 또는 에버랜드 종일 투어', 'Day 4: 더현대 서울 쇼핑 ➔ 인천공항 샌딩']
         },
         hotels: [
-          { id: 'h_sl_1', name: { ko: '롯데호텔 서울 (명동 5성급)', en: 'LOTTE Hotel Seoul (5★ Myeongdong)' }, grade: '5★ 특급', pricePerNightKrw: 320000, breakfast: true, feature: '명동·을지로 도보 1분, 최고급 컨시어지', extUrl: 'https://www.lottehotel.com/seoul-hotel' },
-          { id: 'h_sl_2', name: { ko: '신라스테이 광화문 (4성급 비즈니스)', en: 'Shilla Stay Gwanghwamun (4★)' }, grade: '4★ 비즈니스', pricePerNightKrw: 175000, breakfast: true, feature: '경복궁·인사동 인접 깔끔한 모던 객실', extUrl: 'https://www.shillastay.com' },
-          { id: 'h_sl_3', name: { ko: '락고재 북촌 한옥스테이 (전통 부티크)', en: 'Rakkojae Bukchon Hanok Stay' }, grade: '전통 한옥', pricePerNightKrw: 290000, breakfast: true, feature: '130년 전통 기와 한옥 & 황토 찜질방', extUrl: 'https://www.rkj.co.kr' }
+          { id: 'h_sl_1', name: { ko: '롯데호텔 서울 (명동 5성급)', en: 'LOTTE Hotel Seoul (5★ Myeongdong)', vi: 'Khách sạn LOTTE Seoul (5★ Myeongdong)' }, grade: '5★ 특급', pricePerNightKrw: 320000, breakfast: true, feature: '명동·을지로 도보 1분, 최고급 컨시어지', extUrl: 'https://www.lottehotel.com/seoul-hotel' },
+          { id: 'h_sl_2', name: { ko: '신라스테이 광화문 (4성급 비즈니스)', en: 'Shilla Stay Gwanghwamun (4★)', vi: 'Shilla Stay Gwanghwamun (4★)' }, grade: '4★ 비즈니스', pricePerNightKrw: 175000, breakfast: true, feature: '경복궁·인사동 인접 깔끔한 모던 객실', extUrl: 'https://www.shillastay.com' },
+          { id: 'h_sl_3', name: { ko: '락고재 북촌 한옥스테이 (전통 부티크)', en: 'Rakkojae Bukchon Hanok Stay', vi: 'Nhà cổ Hanok Rakkojae Bukchon' }, grade: '전통 한옥', pricePerNightKrw: 290000, breakfast: true, feature: '130년 전통 기와 한옥 & 황토 찜질방', extUrl: 'https://www.rkj.co.kr' },
+          { id: 'h_sl_4', name: { ko: '포시즌스 호텔 서울 (광화문 5성급)', en: 'Four Seasons Hotel Seoul (5★)', vi: 'Khách sạn Four Seasons Seoul (5★)' }, grade: '5★ 럭셔리', pricePerNightKrw: 480000, breakfast: true, feature: '경복궁 전망 & 미쉐린 레스토랑 보유', extUrl: 'https://www.fourseasons.com/seoul' }
         ]
       },
       {
@@ -733,8 +765,9 @@ function getInitialDb() {
           '4D3N': ['Day 1: 안동 하회마을 & 한옥 숙박', 'Day 2: 병산서원 & 봉정사 ➔ 경주 이동', 'Day 3: 경주 세계유산 올데이 투어', 'Day 4: 부산 또는 서울 공항 연결 샌딩']
         },
         hotels: [
-          { id: 'h_ad_1', name: { ko: '안동 구름에 전통리조트', en: 'Gurume Traditional Hanok Resort' }, grade: '전통 고택', pricePerNightKrw: 230000, breakfast: true, feature: '유서 깊은 고택 스테이 & 한식 정찬', extUrl: 'https://www.gurume-andong.com' },
-          { id: 'h_ad_2', name: { ko: '힐튼 경주 (보문단지 5성급)', en: 'Hilton Gyeongju (5★ Bomun Lake)' }, grade: '5★ 특급', pricePerNightKrw: 280000, breakfast: true, feature: '보문호수 전망 & 가족형 리조트', extUrl: 'https://www.hiltongyeongju.co.kr' }
+          { id: 'h_ad_1', name: { ko: '안동 구름에 전통리조트', en: 'Gurume Traditional Hanok Resort', vi: 'Resort Nhà Cổ Gurume Andong' }, grade: '전통 고택', pricePerNightKrw: 230000, breakfast: true, feature: '유서 깊은 고택 스테이 & 한식 정찬', extUrl: 'https://www.gurume-andong.com' },
+          { id: 'h_ad_2', name: { ko: '힐튼 경주 (보문단지 5성급)', en: 'Hilton Gyeongju (5★ Bomun Lake)', vi: 'Khách sạn Hilton Gyeongju (5★)' }, grade: '5★ 특급', pricePerNightKrw: 280000, breakfast: true, feature: '보문호수 전망 & 가족형 리조트', extUrl: 'https://www.hiltongyeongju.co.kr' },
+          { id: 'h_ad_3', name: { ko: '스탠포드 호텔 안동 (4성급 리조트)', en: 'Stanford Hotel Andong (4★)', vi: 'Khách sạn Stanford Andong (4★)' }, grade: '4★ 리조트', pricePerNightKrw: 175000, breakfast: true, feature: '하회마을 인접 신축 & 낙동강 뷰', extUrl: 'https://www.stanfordandong.com' }
         ]
       },
       {
@@ -749,8 +782,9 @@ function getInitialDb() {
           '4D3N': ['Day 1~2: 여수 핵심 투어 & 케이블카', 'Day 3: 남해 독일마을 & 다랭이마을 드라이브', 'Day 4: 부산 김해공항 또는 서울 복귀']
         },
         hotels: [
-          { id: 'h_ys_1', name: { ko: '소노캄 여수 (오동도 5성급)', en: 'Sono Calm Yeosu (5★ Ocean)' }, grade: '5★ 오션', pricePerNightKrw: 250000, breakfast: true, feature: '여수 밤바다 오동도 파노라마 뷰', extUrl: 'https://www.sonohotelsresorts.com' },
-          { id: 'h_ys_2', name: { ko: '라마다 프라자 여수 (4성급 짚트랙)', en: 'Ramada Plaza Yeosu (4★)' }, grade: '4★ 리조트', pricePerNightKrw: 160000, breakfast: true, feature: '루프탑 인피니티풀 & 해상 짚트랙', extUrl: 'https://www.ramadaplazayeosu.com' }
+          { id: 'h_ys_1', name: { ko: '소노캄 여수 (오동도 5성급)', en: 'Sono Calm Yeosu (5★ Ocean)', vi: 'Khách sạn Sono Calm Yeosu (5★)' }, grade: '5★ 오션', pricePerNightKrw: 250000, breakfast: true, feature: '여수 밤바다 오동도 파노라마 뷰', extUrl: 'https://www.sonohotelsresorts.com' },
+          { id: 'h_ys_2', name: { ko: '라마다 프라자 여수 (4성급 짚트랙)', en: 'Ramada Plaza Yeosu (4★)', vi: 'Ramada Plaza Yeosu (4★)' }, grade: '4★ 리조트', pricePerNightKrw: 160000, breakfast: true, feature: '루프탑 인피니티풀 & 해상 짚트랙', extUrl: 'https://www.ramadaplazayeosu.com' },
+          { id: 'h_ys_3', name: { ko: '유탑 마리나 호텔 & 리조트 여수', en: 'Utop Marina Hotel & Resort Yeosu', vi: 'Utop Marina Hotel & Resort Yeosu' }, grade: '4★ 오션뷰', pricePerNightKrw: 185000, breakfast: true, feature: '전 객실 오션 테라스 & 야외 온수풀', extUrl: 'https://www.utopmarina.com' }
         ]
       },
       {
@@ -765,8 +799,9 @@ function getInitialDb() {
           '4D3N': ['Day 1~2: 광주·담양 투어', 'Day 3: 목포 해상케이블카 & 홍어/낙지 미식', 'Day 4: KTX/리무진 복귀']
         },
         hotels: [
-          { id: 'h_gj_1', name: { ko: '홀리데이 인 광주 (5성급)', en: 'Holiday Inn Gwangju (5★)' }, grade: '5★ 특급', pricePerNightKrw: 195000, breakfast: true, feature: '김대중컨벤션센터 인접 인터내셔널 호텔', extUrl: 'https://www.ihg.com' },
-          { id: 'h_gj_2', name: { ko: '라마다 플라자 충장 (4성급)', en: 'Ramada Plaza Chungjang (4★)' }, grade: '4★ 시티', pricePerNightKrw: 135000, breakfast: true, feature: 'ACC·충장로 도보 3분 최적 위치', extUrl: 'https://www.ramadagwangju.com' }
+          { id: 'h_gj_1', name: { ko: '홀리데이 인 광주 (5성급)', en: 'Holiday Inn Gwangju (5★)', vi: 'Khách sạn Holiday Inn Gwangju (5★)' }, grade: '5★ 특급', pricePerNightKrw: 195000, breakfast: true, feature: '김대중컨벤션센터 인접 인터내셔널 호텔', extUrl: 'https://www.ihg.com' },
+          { id: 'h_gj_2', name: { ko: '라마다 플라자 충장 (4성급)', en: 'Ramada Plaza Chungjang (4★)', vi: 'Ramada Plaza Chungjang (4★)' }, grade: '4★ 시티', pricePerNightKrw: 135000, breakfast: true, feature: 'ACC·충장로 도보 3분 최적 위치', extUrl: 'https://www.ramadagwangju.com' },
+          { id: 'h_gj_3', name: { ko: '유탑 부티크 호텔 & 레지던스 광주', en: 'Utop Boutique Hotel Gwangju', vi: 'Utop Boutique Hotel Gwangju' }, grade: '4★ 비즈니스', pricePerNightKrw: 145000, breakfast: true, feature: '상무지구 중심 & 스마트 레지던스', extUrl: 'https://www.utopboutique.com' }
         ]
       },
       {
@@ -781,7 +816,8 @@ function getInitialDb() {
           '4D3N': ['Day 1: DMZ 안보투어', 'Day 2~3: 강원도 춘천 남이섬 & 설악산 연계', 'Day 4: 인천공항 출국 샌딩']
         },
         hotels: [
-          { id: 'h_dmz_1', name: { ko: '소노캄 고양 (수도권 서북부 5성급)', en: 'Sono Calm Goyang (5★)' }, grade: '5★ 특급', pricePerNightKrw: 210000, breakfast: true, feature: 'DMZ·인천공항 30분 거리 최적 거점', extUrl: 'https://www.sonohotelsresorts.com' }
+          { id: 'h_dmz_1', name: { ko: '소노캄 고양 (수도권 서북부 5성급)', en: 'Sono Calm Goyang (5★)', vi: 'Khách sạn Sono Calm Goyang (5★)' }, grade: '5★ 특급', pricePerNightKrw: 210000, breakfast: true, feature: 'DMZ·인천공항 30분 거리 최적 거점', extUrl: 'https://www.sonohotelsresorts.com' },
+          { id: 'h_dmz_2', name: { ko: '파주 엠스테이 호텔 (3성급 프리미엄)', en: 'M-Stay Hotel Paju', vi: 'Khách sạn M-Stay Paju' }, grade: '4★ 시티', pricePerNightKrw: 125000, breakfast: true, feature: '임진각·헤이리 마을 차량 15분 거리', extUrl: 'https://www.visitkorea.or.kr' }
         ]
       }
     ],
