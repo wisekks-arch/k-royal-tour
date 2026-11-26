@@ -1,7 +1,7 @@
 /**
  * K-Royal Inbound Tour — 통합 다국어(i18n) · 양방향 번역 · 알림 어댑터 · 로컬 DB 코어
  */
-const DB_STORAGE_KEY = 'K_ROYAL_TOUR_DB_V5';
+const DB_STORAGE_KEY = 'K_ROYAL_TOUR_DB_V7';
 const EXCHANGE_RATE_KRW_PER_USD = 1380;
 
 const LANGUAGE_CATALOG = [
@@ -499,6 +499,125 @@ const I18N_UI_EXTRAS = {
 function tx(key, locale = 'ko') {
   const dict = I18N_UI_EXTRAS[locale] || I18N_UI_EXTRAS.en || I18N_UI_EXTRAS.ko;
   return dict[key] !== undefined ? dict[key] : (I18N_UI_EXTRAS.en[key] !== undefined ? I18N_UI_EXTRAS.en[key] : I18N_UI_EXTRAS.ko[key]);
+}
+
+const DYNAMIC_DICT = {
+  en: [
+    ['인천국제공항 (ICN) ↔ 서울 시내 호텔', 'Incheon Intl Airport (ICN) ↔ Seoul Hotels'],
+    ['김해국제공항 (PUS) ↔ 해운대·서면 호텔', 'Gimhae Intl Airport (PUS) ↔ Haeundae/Seomyeon Hotels'],
+    ['김해국제공항 (PUS) ↔ 해운대·광안리 호텔', 'Gimhae Intl Airport (PUS) ↔ Haeundae/Gwangalli Hotels'],
+    ['제네시스 G80 / K8 세단', 'Genesis G80 / K8 Sedan'],
+    ['벤츠 스프린터 / 스타리아 라운지', 'Mercedes Sprinter / Staria Lounge'],
+    ['그랜저 캘리그래피', 'Grandeur Calligraphy'],
+    ['카니발 하이리무진 9인승', 'Carnival Hi-Limousine (9-Seater)'],
+    ['최대 3명 · 캐리어 3개', 'Max 3 Guests · 3 Suitcases'],
+    ['최대 8명 · 캐리어 8개', 'Max 8 Guests · 8 Suitcases'],
+    ['최대 7명 · 캐리어 7개', 'Max 7 Guests · 7 Suitcases'],
+    ['이준호 전담기사', 'Chauffeur Lee Jun-ho'],
+    ['박민수 전담기사', 'Chauffeur Park Min-su'],
+    ['김철수 부산 전담기사', 'Busan Chauffeur Kim Chul-soo'],
+    ['정현우 부산 전담기사', 'Busan Chauffeur Jung Hyun-woo'],
+    ['무사고 14년', '14 Yrs Accident-Free'],
+    ['무사고 11년', '11 Yrs Accident-Free'],
+    ['무사고 16년', '16 Yrs Accident-Free'],
+    ['무사고 10년', '10 Yrs Accident-Free'],
+    ['28인승 우등', '28-Seater Superior'],
+    ['21인승 프리미엄', '21-Seater Premium'],
+    ['명동 롯데호텔 정문', 'Myeongdong Lotte Hotel Main Gate'],
+    ['서울역 15번 출구', 'Seoul Station Exit 15'],
+    ['부산역 광장 투어버스 승강장', 'Busan Station Plaza Bus Stop'],
+    ['광화문 동화면세점 앞', 'Gwanghwamun Donghwa Duty Free'],
+    ['서울70바', 'Seoul-70-BA'],
+    ['리무진 1호차', 'Limousine #1'], ['리무진 2호차', 'Limousine #2'], ['리무진 3호차', 'Limousine #3'],
+    ['리무진 4호차', 'Limousine #4'], ['리무진 5호차', 'Limousine #5'], ['리무진 6호차', 'Limousine #6'],
+    ['리무진 7호차', 'Limousine #7'], ['리무진 8호차', 'Limousine #8'], ['리무진 9호차', 'Limousine #9'], ['리무진 10호차', 'Limousine #10'],
+    ['서울 ➔ 부산', 'Seoul ➔ Busan'], ['부산 ➔ 서울', 'Busan ➔ Seoul'], ['서울 ➔ 광주', 'Seoul ➔ Gwangju'], ['서울 ➔ 안동', 'Seoul ➔ Andong'], ['서울 ➔ 여수', 'Seoul ➔ Yeosu'],
+    ['5★ 특급', '5★ Deluxe'], ['5★ 럭셔리', '5★ Luxury'], ['4★ 오션뷰', '4★ Ocean View'], ['4★ 비즈니스', '4★ Business'], ['전통 한옥', 'Traditional Hanok'], ['전통 고택', 'Heritage Hanok'], ['5★ 오션', '5★ Ocean'], ['4★ 리조트', '4★ Resort'], ['4★ 시티', '4★ City'],
+    ['해운대 오션뷰 & 야외 온천 씨메르', 'Haeundae Ocean View & Cimer Outdoor Spa'],
+    ['초고층 파노라마 해변뷰 인피니티풀', 'High-Floor Panoramic Beach Infinity Pool'],
+    ['광안대교 정면 뷰 & 테라스 루프탑', 'Direct Gwangan Bridge View & Rooftop Terrace'],
+    ['명동·을지로 도보 1분, 최고급 컨시어지', '1 min walk to Myeongdong, Luxury Concierge'],
+    ['경복궁·인사동 인접 깔끔한 모던 객실', 'Modern rooms near Gyeongbokgung & Insadong'],
+    ['130년 전통 기와 한옥 & 황토 찜질방', '130-Year Traditional Hanok & Clay Sauna'],
+    ['유서 깊은 고택 스테이 & 한식 정찬', 'Historic Hanok Stay & Royal Korean Dining'],
+    ['보문호수 전망 & 가족형 리조트', 'Bomun Lake View & Family Resort'],
+    ['여수 밤바다 오동도 파노라마 뷰', 'Odongdo Island Panoramic Night Sea View'],
+    ['루프탑 인피니티풀 & 해상 짚트랙', 'Rooftop Infinity Pool & Ocean Zipline'],
+    ['김대중컨벤션센터 인접 인터내셔널 호텔', 'International Hotel near Kimdaejung Center'],
+    ['ACC·충장로 도보 3분 최적 위치', '3 min walk to ACC & Chungjang-ro'],
+    ['DMZ·인천공항 30분 거리 최적 거점', '30 min from DMZ & Incheon Airport'],
+    ['김해공항 픽업', 'Gimhae Airport Pickup'], ['인천공항 픽업', 'Incheon Airport Pickup'], ['공항 픽업', 'Airport Pickup'], ['공항/KTX 샌딩', 'Airport/KTX Drop-off'], ['공항 샌딩', 'Airport Drop-off'], ['인천공항 출국 샌딩', 'ICN Airport Departure Drop-off'],
+    ['감천문화마을', 'Gamcheon Culture Village'], ['자갈치시장', 'Jagalchi Fish Market'], ['광안리 야경', 'Gwangalli Night View'], ['광안리 루프탑', 'Gwangalli Rooftop'], ['송도해상케이블카', 'Songdo Marine Cable Car'],
+    ['해운대 블루라인파크', 'Haeundae Blueline Park'], ['해운대 스카이캡슐', 'Haeundae Sky Capsule'], ['해동용궁사', 'Haedong Yonggungsa Temple'], ['기장 대게 특식', 'Gijang King Crab Dinner'],
+    ['경주 불국사·황리단길 당일 연계 투어', 'Gyeongju Bulguksa & Hwangnidan-gil Day Tour'], ['부산 복귀', 'Return to Busan'], ['서울 복귀', 'Return to Seoul'], ['자유 쇼핑', 'Free Shopping'], ['부산 또는 서울 공항 연결 샌딩', 'Busan/Seoul Airport Drop-off'], ['부산 김해공항 또는 서울 복귀', 'Gimhae Airport or Return to Seoul'],
+    ['센텀시티 면세쇼핑', 'Centum City Duty-Free'], ['영도 흰여울문화마을', 'Yeongdo Huinnyeoul Village'], ['남포동 BIFF거리', 'Nampodong BIFF Square'], ['달맞이길', 'Dalmaji Hill'], ['송정 서핑/카페', 'Songjeong Surfing/Cafe'], ['범어사 산사체험', 'Beomeosa Temple'], ['온천장', 'Oncheonjang Spa'],
+    ['경복궁 한복투어', 'Gyeongbokgung Hanbok Tour'], ['경복궁', 'Gyeongbokgung Palace'], ['북촌한옥마을', 'Bukchon Hanok Village'], ['명동', 'Myeongdong'], ['남산 N서울타워', 'Namsan N Seoul Tower'], ['성수동 핫플', 'Seongsu-dong'], ['한강 크루즈', 'Han River Cruise'],
+    ['인사동 쌈지길', 'Insadong Ssamziegil'], ['청계천·명동 난타공연', 'Cheonggyecheon & NANTA Show'], ['롯데월드타워 서울스카이', 'Lotte World Tower Seoul Sky'], ['코엑스 별마당도서관', 'COEX Starfield Library'], ['강남 K-POP 거리', 'Gangnam K-POP Street'],
+    ['홍대/연남동 투어', 'Hongdae & Yeonnam Tour'], ['광장시장 미식', 'Gwangjang Market Food'], ['더현대 서울 쇼핑', 'The Hyundai Seoul'], ['용인 한국민속촌 또는 에버랜드 종일 투어', 'Korean Folk Village or Everland Full-Day'], ['DMZ 안보투어(반일)', 'DMZ Half-Day Tour'], ['홍대 나이트라이프', 'Hongdae Nightlife'],
+    ['고궁·한옥마을', 'Royal Palaces & Hanok'], ['종로 전통찻집', 'Jongno Traditional Tea House'], ['안동 하회마을·부용대', 'Andong Hahoe Village & Buyongdae'], ['안동 하회마을', 'Andong Hahoe Village'], ['월영교 야경', 'Wolyeonggyo Night View'], ['월영교', 'Wolyeonggyo Bridge'],
+    ['도산서원', 'Dosan Seowon'], ['안동 찜닭 거리', 'Andong Jjimdak Street'], ['탈춤공연', 'Mask Dance Show'], ['경주 이동', 'Transfer to Gyeongju'], ['불국사·석굴암', 'Bulguksa & Seokguram'], ['황리단길·동궁과 월지', 'Hwangnidan-gil & Donggung Palace'], ['대릉원·첨성대', 'Daereungwon & Cheomseongdae'],
+    ['병산서원 & 봉정사', 'Byeongsan Seowon & Bongjeongsa'], ['경주 세계유산 올데이 투어', 'Gyeongju UNESCO All-Day Tour'], ['한옥 숙박', 'Hanok Stay'], ['여수 도착', 'Arrive in Yeosu'], ['오동도', 'Odongdo Island'], ['해상케이블카', 'Marine Cable Car'], ['낭만포차', 'Romantic Pocha'],
+    ['향일암 일출', 'Hyangiram Sunrise'], ['아쿠아플라넷', 'Aqua Planet'], ['여수 게장백반', 'Yeosu Marinated Crab Meal'], ['이순신광장', 'Yi Sun-sin Square'], ['여수 밤바다 크루즈', 'Yeosu Night Cruise'], ['순천만 국가정원·습지 연계', 'Suncheon Bay Garden'], ['여수 예술랜드', 'Yeosu Art Land'], ['돌산갓김치 체험', 'Dolsan Kimchi Experience'],
+    ['남해 독일마을 & 다랭이마을 드라이브', 'Namhae German & Daraengi Village'], ['여수 핵심 투어 & 케이블카', 'Yeosu Highlights & Cable Car'], ['광주송정역', 'Gwangju Songjeong Stn'], ['양림동 펭귄마을', 'Yangnim Penguin Village'], ['무등산 케이블카', 'Mudeungsan Cable Car'], ['담양 죽녹원 & 떡갈비', 'Damyang Bamboo Forest & Tteokgalbi'],
+    ['임진각 평화누리', 'Imjingak Pyeonghoa-Nuri'], ['제3땅굴', '3rd Tunnel'], ['도라전망대', 'Dora Observatory'], ['헤이리 예술마을', 'Heyri Art Village'], ['파주 프리미엄 아울렛', 'Paju Premium Outlets'], ['마장호수 출렁다리', 'Majang Lake Bridge'], ['강원도 춘천 남이섬 & 설악산 연계', 'Nami Island & Mt. Seoraksan'],
+    ['부산 도착', 'Arrive in Busan'], ['서울 출발', 'Depart Seoul'], ['서울/리무진 이동', 'Seoul/Limousine Transfer'], ['리무진 이동', 'Limousine Transfer'], ['KTX/리무진 복귀', 'Return via KTX/Limousine'], ['복귀', 'Return'], ['한국어', 'Korean'],
+    ['리무진/렌터카', 'Limousine / Rental Car'], ['결제/취소', 'Payment & Cancellation'], ['입국/비자', 'Entry & Visa'], ['멀티 공항', 'Multi-Airport'], ['리무진버스', 'Limousine Bus'], ['숙박/호텔', 'Hotels & Stays'], ['관광지/입장권', 'Attractions & Tickets'], ['식사/할랄·채식', 'Meals / Halal & Vegan'], ['결제/통화', 'Payment & Currency'], ['통신/유심', 'SIM & Wi-Fi'], ['비상/안전', 'Emergency & Safety']
+  ],
+  vi: [
+    ['인천국제공항 (ICN) ↔ 서울 시내 호텔', 'Sân bay Incheon (ICN) ↔ Khách sạn Seoul'],
+    ['김해국제공항 (PUS) ↔ 해운대·서면 호텔', 'Sân bay Gimhae (PUS) ↔ Khách sạn Haeundae/Seomyeon'],
+    ['김해국제공항 (PUS) ↔ 해운대·광안리 호텔', 'Sân bay Gimhae (PUS) ↔ Khách sạn Haeundae/Gwangalli'],
+    ['제네시스 G80 / K8 세단', 'Sedan Genesis G80 / K8'],
+    ['벤츠 스프린터 / 스타리아 라운지', 'Mercedes Sprinter / Staria Lounge'],
+    ['그랜저 캘리그래피', 'Sedan Grandeur Calligraphy'],
+    ['카니발 하이리무진 9인승', 'Carnival Hi-Limousine 9 chỗ'],
+    ['최대 3명 · 캐리어 3개', 'Tối đa 3 khách · 3 vali'],
+    ['최대 8명 · 캐리어 8개', 'Tối đa 8 khách · 8 vali'],
+    ['최대 7명 · 캐리어 7개', 'Tối đa 7 khách · 7 vali'],
+    ['이준호 전담기사', 'Tài xế Lee Jun-ho'],
+    ['박민수 전담기사', 'Tài xế Park Min-su'],
+    ['김철수 부산 전담기사', 'Tài xế Busan Kim Chul-soo'],
+    ['정현우 부산 전담기사', 'Tài xế Busan Jung Hyun-woo'],
+    ['무사고 14년', '14 năm lái xe an toàn'],
+    ['무사고 11년', '11 năm lái xe an toàn'],
+    ['무사고 16년', '16 năm lái xe an toàn'],
+    ['무사고 10년', '10 năm lái xe an toàn'],
+    ['28인승 우등', '28 chỗ Hạng Thương Gia'],
+    ['21인승 프리미엄', '21 chỗ VIP Premium'],
+    ['명동 롯데호텔 정문', 'Cổng chính Lotte Hotel Myeongdong'],
+    ['서울역 15번 출구', 'Ga Seoul Cửa số 15'],
+    ['부산역 광장 투어버스 승강장', 'Quảng trường Ga Busan'],
+    ['광화문 동화면세점 앞', 'Cửa hàng miễn thuế Donghwa Gwanghwamun'],
+    ['서울70바', 'Seoul-70-BA'],
+    ['리무진 1호차', 'Xe Limousine số 1'], ['리무진 2호차', 'Xe Limousine số 2'], ['리무진 3호차', 'Xe Limousine số 3'],
+    ['리무진 4호차', 'Xe Limousine số 4'], ['리무진 5호차', 'Xe Limousine số 5'], ['리무진 6호차', 'Xe Limousine số 6'],
+    ['리무진 7호차', 'Xe Limousine số 7'], ['리무진 8호차', 'Xe Limousine số 8'], ['리무진 9호차', 'Xe Limousine số 9'], ['리무진 10호차', 'Xe Limousine số 10'],
+    ['서울 ➔ 부산', 'Seoul ➔ Busan'], ['부산 ➔ 서울', 'Busan ➔ Seoul'], ['서울 ➔ 광주', 'Seoul ➔ Gwangju'], ['서울 ➔ 안동', 'Seoul ➔ Andong'], ['서울 ➔ 여수', 'Seoul ➔ Yeosu'],
+    ['5★ 특급', '5★ Đặc Cấp'], ['5★ 럭셔리', '5★ Sang Trọng'], ['4★ 오션뷰', '4★ Hướng Biển'], ['4★ 비즈니스', '4★ Thương Gia'], ['전통 한옥', 'Nhà Cổ Hanok'], ['전통 고택', 'Nhà Cổ Truyền Thống'], ['5★ 오션', '5★ Hướng Biển'], ['4★ 리조트', '4★ Resort'], ['4★ 시티', '4★ Trung Tâm'],
+    ['해운대 오션뷰 & 야외 온천 씨메르', 'Hướng biển Haeundae & Suối nước nóng Cimer'],
+    ['초고층 파노라마 해변뷰 인피니티풀', 'Hồ bơi vô cực ngắm trọn biển từ tầng cao'],
+    ['광안대교 정면 뷰 & 테라스 루프탑', 'View cầu Gwangan trực diện & Sân thượng Rooftop'],
+    ['명동·을지로 도보 1분, 최고급 컨시어지', 'Cách Myeongdong 1 phút đi bộ, dịch vụ 5 sao'],
+    ['경복궁·인사동 인접 깔끔한 모던 객실', 'Phòng hiện đại gần Cung điện Gyeongbokgung & Insadong'],
+    ['130년 전통 기와 한옥 & 황토 찜질방', 'Nhà cổ Hanok 130 năm & Phòng xông hơi đất sét'],
+    ['김해공항 픽업', 'Đón sân bay Gimhae'], ['인천공항 픽업', 'Đón sân bay Incheon'], ['공항 픽업', 'Đón sân bay'], ['공항/KTX 샌딩', 'Tiễn sân bay/Ga KTX'], ['공항 샌딩', 'Tiễn sân bay'],
+    ['감천문화마을', 'Làng văn hóa Gamcheon'], ['자갈치시장', 'Chợ hải sản Jagalchi'], ['광안리 야경', 'Cảnh đêm Gwangalli'], ['송도해상케이블카', 'Cáp treo biển Songdo'],
+    ['해운대 블루라인파크', 'Công viên Haeundae Blueline'], ['해운대 스카이캡슐', 'Tàu trên cao Sky Capsule'], ['해동용궁사', 'Chùa Haedong Yonggungsa'], ['기장 대게 특식', 'Đặc sản Cua hoàng đế Gijang'],
+    ['경주 불국사·황리단길 당일 연계 투어', 'Tour ngày Chùa Bulguksa & Phố Hwangnidan'], ['부산 복귀', 'Về lại Busan'], ['서울 복귀', 'Về lại Seoul'], ['자유 쇼핑', 'Tự do mua sắm'],
+    ['경복궁 한복투어', 'Tham quan Gyeongbokgung mặc Hanbok'], ['경복궁', 'Cung điện Gyeongbokgung'], ['북촌한옥마을', 'Làng cổ Bukchon'], ['명동', 'Myeongdong'], ['남산 N서울타워', 'Tháp Namsan Seoul'], ['성수동 핫플', 'Phố thời trang Seongsu'], ['한강 크루즈', 'Du thuyền sông Hàn'],
+    ['한국어', 'Tiếng Hàn'],
+    ['리무진/렌터카', 'Limousine / Thuê xe'], ['결제/취소', 'Thanh toán & Hủy'], ['입국/비자', 'Nhập cảnh & Visa'], ['멀티 공항', 'Đa sân bay'], ['리무진버스', 'Xe Limousine'], ['숙박/호텔', 'Khách sạn'], ['관광지/입장권', 'Tham quan & Vé'], ['식사/할랄·채식', 'Ẩm thực / Halal & Chay'], ['결제/통화', 'Thanh toán & Tiền tệ'], ['통신/유심', 'SIM & Wi-Fi'], ['비상/안전', 'Khẩn cấp & An toàn']
+  ]
+};
+
+function trData(text, locale = 'ko') {
+  if (!text || locale === 'ko') return text;
+  const pairs = DYNAMIC_DICT[locale] || DYNAMIC_DICT.en;
+  let out = String(text);
+  for (const [k, v] of pairs) {
+    if (out.includes(k)) out = out.split(k).join(v);
+  }
+  return out;
 }
 
 function formatCurrency(krwAmount, locale = 'ko') {

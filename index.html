@@ -1127,12 +1127,14 @@
         const topImgHtml = a.imageUrl
           ? `<div class="mb-3 overflow-hidden rounded-xl border border-slate-200"><img src="${a.imageUrl}" alt="${title}" class="w-full h-44 object-cover hover:scale-105 transition duration-300"></div>`
           : '';
+        const regLabel = (tx('attRegions', currentLocale) && tx('attRegions', currentLocale)[a.region]) || a.region;
+        const catLabel = (tx('attCats', currentLocale) && tx('attCats', currentLocale)[a.category]) || a.category;
         return `
           <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200 flex flex-col justify-between hover:shadow-md transition">
             <div>
               ${topImgHtml}
               <div class="flex items-center justify-between gap-2 mb-2">
-                <span class="px-2.5 py-0.5 rounded-full bg-teal-50 text-teal-800 text-[11px] font-bold border border-teal-200">${a.region} · ${a.category}</span>
+                <span class="px-2.5 py-0.5 rounded-full bg-teal-50 text-teal-800 text-[11px] font-bold border border-teal-200">${regLabel} · ${catLabel}</span>
                 <span class="px-2 py-0.5 rounded bg-amber-100 text-amber-800 text-[10px] font-bold">${a.tag}</span>
               </div>
               <h4 class="font-black text-base text-[#0f2544] mb-1.5">${title}</h4>
@@ -1210,7 +1212,7 @@
       const db = TourStore.getDb();
       const pkg = db.regionalPackages.find(p => p.id === selectedPkgId) || db.regionalPackages[0];
       const list = pkg.itineraries[dur] || pkg.itineraries['3D2N'];
-      document.getElementById('pkgItineraryList').innerHTML = list.map(line => `<li>• ${line}</li>`).join('');
+      document.getElementById('pkgItineraryList').innerHTML = list.map(line => `<li>• ${trData(line, currentLocale)}</li>`).join('');
 
       if (!selectedHotelId || !pkg.hotels.some(h => h.id === selectedHotelId)) {
         selectedHotelId = pkg.hotels[0].id;
@@ -1222,11 +1224,11 @@
         return `
           <div onclick="selectedHotelId='${h.id}'; selectPkgDuration('${dur}');" class="cursor-pointer rounded-xl p-3.5 border-2 transition ${isSel ? 'border-teal-600 bg-teal-50/50' : 'border-slate-200 hover:border-teal-300'}">
             <div class="flex items-center justify-between gap-2 mb-1">
-              <span class="px-2 py-0.5 rounded bg-amber-100 text-amber-900 text-[10px] font-bold">${h.grade}</span>
+              <span class="px-2 py-0.5 rounded bg-amber-100 text-amber-900 text-[10px] font-bold">${trData(h.grade, currentLocale)}</span>
               <span class="text-xs font-black text-teal-700">${formatCurrency(h.pricePerNightKrw, currentLocale)} / ${tx('perNight', currentLocale)}</span>
             </div>
             <div class="font-bold text-sm text-[#0f2544]">${hName}</div>
-            <div class="text-[11px] text-slate-500 mt-1">${h.feature} · ${h.breakfast ? tx('breakfastInc', currentLocale) : tx('breakfastExc', currentLocale)}</div>
+            <div class="text-[11px] text-slate-500 mt-1">${trData(h.feature, currentLocale)} · ${h.breakfast ? tx('breakfastInc', currentLocale) : tx('breakfastExc', currentLocale)}</div>
             <a href="${h.extUrl}" target="_blank" onclick="event.stopPropagation()" class="inline-block mt-2 text-[11px] text-sky-700 font-bold hover:underline">${tx('hotelDetail', currentLocale)}</a>
           </div>
         `;
@@ -1394,7 +1396,8 @@
         return;
       }
 
-      badge.innerHTML = `<span class="px-3 py-1 rounded-full bg-teal-100 text-teal-800">✅ 운행 가능: ${matched.length}대 배정 (${matched.length} Buses)</span>`;
+      const availLabel = currentLocale === 'ko' ? `✅ 운행 가능: ${matched.length}대 배정` : (currentLocale === 'vi' ? `✅ Khả dụng: ${matched.length} xe` : `✅ Available: ${matched.length} Coaches`);
+      badge.innerHTML = `<span class="px-3 py-1 rounded-full bg-teal-100 text-teal-800">${availLabel}</span>`;
       if (!selectedDispatchId || !matched.some(m => m.id === selectedDispatchId)) {
         selectedDispatchId = matched[0].id;
         selectedSeats = [];
@@ -1405,14 +1408,18 @@
         const remain = bus.capacity - d.bookedSeats.length - d.blockedSeats.length;
         const isClosed = d.status !== 'Open' || remain <= 0;
         const isSel = d.id === selectedDispatchId;
+        const depTxt = currentLocale === 'ko' ? '출발' : (currentLocale === 'vi' ? 'Khởi hành' : 'Dep.');
+        const remainTxt = currentLocale === 'ko' ? `잔여 ${remain}석` : (currentLocale === 'vi' ? `Còn ${remain} ghế` : `${remain} Seats Left`);
+        const soldOutTxt = currentLocale === 'ko' ? '예약 마감 (Sold Out)' : (currentLocale === 'vi' ? 'Hết chỗ' : 'Sold Out');
+        const pickTxt = currentLocale === 'ko' ? '탑승' : (currentLocale === 'vi' ? 'Điểm đón' : 'Pickup');
         return `
           <div onclick="${isClosed ? '' : `selectedDispatchId='${d.id}'; selectedSeats=[]; renderBusDispatches();`}" class="rounded-xl p-3.5 border-2 transition ${isClosed ? 'bg-slate-100 opacity-60 cursor-not-allowed' : (isSel ? 'border-teal-600 bg-teal-50 cursor-pointer' : 'border-slate-200 hover:border-teal-400 cursor-pointer')}">
             <div class="flex items-center justify-between text-xs mb-1">
-              <span class="font-black text-[#0f2544]">⏰ ${d.time} 출발 · ${bus.name} (${bus.plate})</span>
-              ${isClosed ? `<span class="px-2 py-0.5 rounded bg-rose-600 text-white text-[10px] font-bold">예약 마감 (Sold Out)</span>` : `<span class="px-2 py-0.5 rounded bg-teal-600 text-white text-[10px] font-bold">잔여 ${remain}석</span>`}
+              <span class="font-black text-[#0f2544]">⏰ ${d.time} ${depTxt} · ${trData(bus.name, currentLocale)} (${trData(bus.plate, currentLocale)})</span>
+              ${isClosed ? `<span class="px-2 py-0.5 rounded bg-rose-600 text-white text-[10px] font-bold">${soldOutTxt}</span>` : `<span class="px-2 py-0.5 rounded bg-teal-600 text-white text-[10px] font-bold">${remainTxt}</span>`}
             </div>
             <div class="text-[11px] text-slate-600 flex justify-between">
-              <span>${bus.grade} · 탑승: ${d.pickupSpot}</span>
+              <span>${trData(bus.grade, currentLocale)} · ${pickTxt}: ${trData(d.pickupSpot, currentLocale)}</span>
               <strong class="text-orange-600">${formatCurrency(d.priceKrw, currentLocale)}</strong>
             </div>
           </div>
@@ -1445,20 +1452,31 @@
       const bus = db.busFleet.find(b => b.id === disp.busId) || { grade: '28인승 우등', capacity: 28 };
       const rows = bus.grade.includes('21') ? 7 : 9;
 
+      const lblDriver = currentLocale === 'ko' ? '🧑‍✈️ 운전석 (Driver)' : (currentLocale === 'vi' ? '🧑‍✈️ Ghế Tài Xế' : '🧑‍✈️ Driver');
+      const lblGuide = currentLocale === 'ko' ? '🚩 가이드석' : (currentLocale === 'vi' ? '🚩 Ghế HDV' : '🚩 Guide Seat');
+      const lblDoor = currentLocale === 'ko' ? '🚪 출입문 (Door)' : (currentLocale === 'vi' ? '🚪 Cửa Lên Xuống' : '🚪 Door');
+      const lblWinLeft = currentLocale === 'ko' ? '🪟 좌측 창문 (Window)' : (currentLocale === 'vi' ? '🪟 Cửa Sổ Trái' : '🪟 Left Window');
+      const lblAisleTop = currentLocale === 'ko' ? '통로 (Aisle)' : (currentLocale === 'vi' ? 'Lối Đi' : 'Aisle');
+      const lblWinRight = currentLocale === 'ko' ? '우측 독립 창문 (Solo) 🪟' : (currentLocale === 'vi' ? 'Ghế Đơn Cửa Sổ 🪟' : 'Right Solo Window 🪟');
+      const lblSolo = currentLocale === 'ko' ? '⭐독립' : (currentLocale === 'vi' ? '⭐Đơn' : '⭐Solo');
+      const lblWin = currentLocale === 'ko' ? '🪟창측' : (currentLocale === 'vi' ? '🪟Cửa' : '🪟Win');
+      const lblAisle = currentLocale === 'ko' ? '🚶통로' : (currentLocale === 'vi' ? '🚶Lối' : '🚶Aisle');
+      const lblRear = currentLocale === 'ko' ? 'REAR LUGGAGE COMPARTMENT (대형 수하물칸)' : (currentLocale === 'vi' ? 'KHOANG HÀNH LÝ CỠ LỚN PHÍA SAU' : 'REAR LUGGAGE COMPARTMENT');
+
       let html = `
         <!-- 전면 조종석 / 승하차구 -->
         <div class="border-b-2 border-dashed border-slate-300 pb-3 mb-4">
           <div class="text-[10px] text-center font-bold text-slate-400 tracking-widest mb-2">FRONT COCKPIT & WINDSHIELD</div>
           <div class="flex justify-between items-center text-[11px] font-bold">
-            <div class="px-3 py-1.5 rounded-lg bg-slate-800 text-white">🧑‍✈️ 운전석 (Driver)</div>
-            <div class="px-3 py-1.5 rounded-lg bg-amber-100 text-amber-900 border border-amber-300">🚩 가이드석</div>
-            <div class="px-3 py-1.5 rounded-lg bg-teal-100 text-teal-900 border border-teal-300">🚪 출입문 (Door)</div>
+            <div class="px-3 py-1.5 rounded-lg bg-slate-800 text-white">${lblDriver}</div>
+            <div class="px-3 py-1.5 rounded-lg bg-amber-100 text-amber-900 border border-amber-300">${lblGuide}</div>
+            <div class="px-3 py-1.5 rounded-lg bg-teal-100 text-teal-900 border border-teal-300">${lblDoor}</div>
           </div>
         </div>
         <div class="flex justify-between text-[10px] font-bold text-sky-700 mb-2 px-1">
-          <span>🪟 좌측 창문 (Window)</span>
-          <span>통로 (Aisle)</span>
-          <span>우측 독립 창문 (Solo) 🪟</span>
+          <span>${lblWinLeft}</span>
+          <span>${lblAisleTop}</span>
+          <span>${lblWinRight}</span>
         </div>
         <div class="space-y-2">
       `;
@@ -1467,9 +1485,9 @@
         const isFront = r <= 3;
         const zoneTag = isFront ? 'Front' : (r <= 6 ? 'Mid' : 'Rear');
         const seats = [
-          { code: `${r}A`, type: 'window', label: '좌측 창측(Window)' },
-          { code: `${r}B`, type: 'aisle', label: '좌측 내측/통로(Aisle)' },
-          { code: `${r}C`, type: 'solo', label: '우측 1인 독립 창측(Solo Window)' }
+          { code: `${r}A`, type: 'window', label: 'Window' },
+          { code: `${r}B`, type: 'aisle', label: 'Aisle' },
+          { code: `${r}C`, type: 'solo', label: 'Solo Window' }
         ];
 
         const makeSeatBtn = (s) => {
@@ -1484,11 +1502,11 @@
 
           const stateCls = isOcc ? 'occupied' : (isBlk ? 'blocked' : (isSel ? 'selected' : 'available bg-white'));
           const dimCls = (!isOcc && !isBlk && !matchesFilter) ? 'dimmed' : '';
-          const tip = `${s.code} · ${s.label} · ${zoneTag} Zone · 140° 리클라이닝 & USB`;
+          const tip = `${s.code} · ${s.label} · ${zoneTag} Zone · 140° Recline & USB`;
           return `
             <button type="button" title="${tip}" onclick="${(isOcc || isBlk) ? '' : `toggleBusSeat('${s.code}')`}" class="seat-btn ${stateCls} ${dimCls} w-14 h-11 flex flex-col items-center justify-center text-[11px] font-black">
               <span>${isOcc ? '✕' : s.code}</span>
-              <span class="text-[9px] font-normal">${s.type === 'solo' ? '⭐독립' : (s.type === 'window' ? '🪟창측' : '🚶통로')}</span>
+              <span class="text-[9px] font-normal">${s.type === 'solo' ? lblSolo : (s.type === 'window' ? lblWin : lblAisle)}</span>
             </button>
           `;
         };
@@ -1502,7 +1520,7 @@
         `;
       }
 
-      html += `</div><div class="mt-4 pt-2 border-t border-dashed border-slate-300 text-center text-[10px] font-bold text-slate-400">REAR LUGGAGE COMPARTMENT (대형 수하물칸)</div>`;
+      html += `</div><div class="mt-4 pt-2 border-t border-dashed border-slate-300 text-center text-[10px] font-bold text-slate-400">${lblRear}</div>`;
       container.innerHTML = html;
       updateBusSummary();
     }
@@ -1536,12 +1554,14 @@
       const sumEl = document.getElementById('selectedBusSummary');
       const pkgInfo = document.getElementById('pkgLimousineSelectedInfo');
       if (!disp || selectedSeats.length === 0) {
-        sumEl.innerText = '버스 평면도에서 원하시는 좌석을 클릭해 주세요.';
+        sumEl.innerText = currentLocale === 'ko' ? '버스 평면도에서 원하시는 좌석을 클릭해 주세요.' : (currentLocale === 'vi' ? 'Vui lòng chọn ghế mong muốn trên sơ đồ xe.' : 'Please click your preferred seats on the bus seat map.');
         return;
       }
       const bus = db.busFleet.find(b => b.id === disp.busId);
       const total = disp.priceKrw * selectedSeats.length;
-      const text = `${disp.date} ${disp.time} · ${disp.route} · ${bus ? bus.name : ''} · 좌석 [${selectedSeats.join(', ')}] · 합계 ${formatCurrency(total, currentLocale)}`;
+      const seatWord = currentLocale === 'ko' ? '좌석' : (currentLocale === 'vi' ? 'Ghế' : 'Seats');
+      const totalWord = currentLocale === 'ko' ? '합계' : (currentLocale === 'vi' ? 'Tổng' : 'Total');
+      const text = `${disp.date} ${disp.time} · ${trData(disp.route, currentLocale)} · ${bus ? trData(bus.name, currentLocale) : ''} · ${seatWord} [${selectedSeats.join(', ')}] · ${totalWord} ${formatCurrency(total, currentLocale)}`;
       sumEl.innerText = text;
       if (pkgInfo) pkgInfo.innerText = text;
     }
@@ -1597,25 +1617,26 @@
 
       const db = TourStore.getDb();
       const items = db.airportTransfers.filter(a => a.airport === airport);
+      const langLbl = currentLocale === 'ko' ? '가능 언어' : (currentLocale === 'vi' ? 'Ngôn ngữ' : 'Languages');
       document.getElementById('airportCardsGrid').innerHTML = items.map(a => `
         <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
           <div class="flex justify-between items-start mb-2">
-            <span class="px-2.5 py-0.5 rounded bg-sky-100 text-sky-900 text-xs font-bold">${a.routeLabel}</span>
+            <span class="px-2.5 py-0.5 rounded bg-sky-100 text-sky-900 text-xs font-bold">${trData(a.routeLabel, currentLocale)}</span>
             <span class="text-sm font-black text-orange-600">${formatCurrency(a.priceKrw, currentLocale)}</span>
           </div>
-          <h4 class="font-black text-base text-[#0f2544]">${a.vehicle}</h4>
-          <div class="text-xs text-slate-600 mb-3">${a.capacity}</div>
+          <h4 class="font-black text-base text-[#0f2544]">${trData(a.vehicle, currentLocale)}</h4>
+          <div class="text-xs text-slate-600 mb-3">${trData(a.capacity, currentLocale)}</div>
           <div class="bg-slate-50 rounded-xl p-3 border border-slate-200 flex items-center justify-between text-xs">
             <div>
-              <div class="font-bold text-[#0f2544]">🧑‍✈️ ${a.chauffeur} (${a.exp})</div>
-              <div class="text-[11px] text-slate-500 mt-0.5">가능 언어: ${a.langs.join(', ')}</div>
+              <div class="font-bold text-[#0f2544]">🧑‍✈️ ${trData(a.chauffeur, currentLocale)} (${trData(a.exp, currentLocale)})</div>
+              <div class="text-[11px] text-slate-500 mt-0.5">${langLbl}: ${a.langs.map(l => trData(l, currentLocale)).join(', ')}</div>
             </div>
             <div class="px-2 py-1 rounded bg-amber-100 text-amber-900 font-black">★ ${a.rating}</div>
           </div>
         </div>
       `).join('');
 
-      document.getElementById('atVehicleSelect').innerHTML = items.map(a => `<option value="${a.id}">${a.vehicle} (${formatCurrency(a.priceKrw, currentLocale)})</option>`).join('');
+      document.getElementById('atVehicleSelect').innerHTML = items.map(a => `<option value="${a.id}">${trData(a.vehicle, currentLocale)} (${formatCurrency(a.priceKrw, currentLocale)})</option>`).join('');
     }
 
     function submitAirportReservation() {
@@ -1720,6 +1741,10 @@
 
     function renderInquiryBoard() {
       const db = TourStore.getDb();
+      const lblAns = currentLocale === 'ko' ? '답변 완료' : (currentLocale === 'vi' ? 'Đã Trả Lời' : 'Answered');
+      const lblWait = currentLocale === 'ko' ? '답변 대기' : (currentLocale === 'vi' ? 'Đang Chờ' : 'Waiting');
+      const lblAdminTr = currentLocale === 'ko' ? '관리자용 번역' : (currentLocale === 'vi' ? 'Bản dịch cho Admin' : 'Admin Translation');
+      const lblAgencyReply = currentLocale === 'ko' ? '여행사 답변' : (currentLocale === 'vi' ? 'Phản hồi từ K-Royal' : 'Agency Reply');
       document.getElementById('inquiryBoardList').innerHTML = db.inquiries.map(inq => {
         const replyShow = inq.adminReplyKo
           ? (currentLocale === 'ko' ? inq.adminReplyKo : (inq.translatedReply || autoTranslateText(inq.adminReplyKo, 'ko', currentLocale)))
@@ -1728,11 +1753,11 @@
           <div class="p-3.5 rounded-xl border border-slate-200 bg-slate-50 text-xs">
             <div class="flex items-center justify-between mb-1.5">
               <span class="font-black text-[#0f2544]">${inq.customerName} <span class="px-1.5 py-0.5 rounded bg-sky-100 text-sky-800 text-[10px]">${inq.sourceLocale.toUpperCase()}</span></span>
-              <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${inq.status === 'Answered' ? 'bg-teal-100 text-teal-800' : 'bg-amber-100 text-amber-800'}">${inq.status === 'Answered' ? '답변 완료' : '답변 대기'}</span>
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${inq.status === 'Answered' ? 'bg-teal-100 text-teal-800' : 'bg-amber-100 text-amber-800'}">${inq.status === 'Answered' ? lblAns : lblWait}</span>
             </div>
             <div class="text-slate-700 font-medium">${inq.originalText}</div>
-            ${inq.koTranslatedText && inq.sourceLocale !== 'ko' ? `<div class="text-[11px] text-slate-500 mt-1">↳ 관리자용 번역: ${inq.koTranslatedText}</div>` : ''}
-            ${replyShow ? `<div class="mt-2 p-2.5 rounded-lg bg-white border border-teal-200 text-teal-900"><strong>💬 여행사 답변 (${currentLocale.toUpperCase()}):</strong> ${replyShow}</div>` : ''}
+            ${inq.koTranslatedText && inq.sourceLocale !== 'ko' ? `<div class="text-[11px] text-slate-500 mt-1">↳ ${lblAdminTr}: ${inq.koTranslatedText}</div>` : ''}
+            ${replyShow ? `<div class="mt-2 p-2.5 rounded-lg bg-white border border-teal-200 text-teal-900"><strong>💬 ${lblAgencyReply} (${currentLocale.toUpperCase()}):</strong> ${replyShow}</div>` : ''}
           </div>
         `;
       }).join('');
@@ -1747,7 +1772,7 @@
         return `
           <details class="bg-white rounded-xl p-5 shadow-sm border border-slate-200 cursor-pointer">
             <summary class="font-extrabold text-base text-[#0f2544] flex items-center justify-between">
-              <span><span class="text-teal-600 mr-2">[${f.category}]</span>${q}</span>
+              <span><span class="text-teal-600 mr-2">[${trData(f.category, currentLocale)}]</span>${q}</span>
             </summary>
             <p class="text-xs md:text-sm font-normal text-slate-700 mt-3 pt-3 border-t border-slate-200 leading-relaxed whitespace-pre-line">${a}</p>
           </details>
