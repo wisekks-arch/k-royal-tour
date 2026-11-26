@@ -244,7 +244,8 @@
   <!-- 2. 상단 글로벌 헤더 & 7대 메뉴 & 동적 다국어 스위처 -->
   <header class="sticky top-0 z-40 bg-[#0f2544] text-white shadow-lg border-b-2 border-[#d4af37]/60">
     <div class="max-w-7xl mx-auto px-4">
-      <div class="flex items-center justify-between h-16 gap-3">
+      <!-- 1단: 브랜드 로고 & 우측 언어 선택기 / 관리자 바로가기 (언어 길이와 무관하게 항상 고정 표시) -->
+      <div class="flex items-center justify-between min-h-[3.5rem] py-1.5 gap-2">
         <!-- 브랜드 로고 -->
         <div class="flex items-center gap-2.5 cursor-pointer shrink-0" onclick="navigateMenu('attractions')">
           <div
@@ -256,32 +257,14 @@
           </div>
         </div>
 
-        <!-- 7대 글로벌 표준 메뉴 -->
-        <nav class="hidden lg:flex items-center gap-1 text-xs font-bold" id="mainNavDesktop">
-          <button onclick="navigateMenu('regional')" data-menu="regional"
-            class="nav-tab px-3 py-2 rounded-lg hover:bg-white/10 transition whitespace-nowrap">지역상품예약</button>
-          <button onclick="navigateMenu('attractions')" data-menu="attractions"
-            class="nav-tab px-3 py-2 rounded-lg hover:bg-white/10 transition whitespace-nowrap">지역상품소개</button>
-          <button onclick="navigateMenu('limousine')" data-menu="limousine"
-            class="nav-tab px-3 py-2 rounded-lg hover:bg-white/10 transition whitespace-nowrap">리무진버스</button>
-          <button onclick="navigateMenu('airport')" data-menu="airport"
-            class="nav-tab px-3 py-2 rounded-lg hover:bg-white/10 transition whitespace-nowrap">공항 픽업</button>
-          <button onclick="navigateMenu('inquiry')" data-menu="inquiry"
-            class="nav-tab px-3 py-2 rounded-lg hover:bg-white/10 transition whitespace-nowrap">여행문의</button>
-          <button onclick="navigateMenu('faq')" data-menu="faq"
-            class="nav-tab px-3 py-2 rounded-lg hover:bg-white/10 transition whitespace-nowrap">FAQ</button>
-          <button onclick="navigateMenu('etc')" data-menu="etc"
-            class="nav-tab px-3 py-2 rounded-lg hover:bg-white/10 transition whitespace-nowrap">회사소개</button>
-        </nav>
-
         <!-- 우측 언어 스위처 & 관리자/모바일 바로가기 -->
-        <div class="flex items-center gap-2 shrink-0">
+        <div class="flex items-center gap-2 shrink-0 flex-wrap justify-end">
           <button onclick="replayIntro()" id="btnReplayIntro"
-            class="hidden sm:inline-flex px-2.5 py-1.5 rounded-md bg-white/10 hover:bg-white/20 text-[11px] font-semibold border border-white/20 whitespace-nowrap">
+            class="hidden sm:inline-flex items-center px-2.5 py-1.5 rounded-md bg-white/10 hover:bg-white/20 text-[11px] font-semibold border border-white/20 max-w-[190px] truncate">
             🏮 인트로 다시보기
           </button>
           <select id="langSwitcher" onchange="changeLocale(this.value)"
-            class="bg-slate-800 text-white text-xs font-bold px-2.5 py-1.5 rounded-md border border-amber-400/50 cursor-pointer"></select>
+            class="bg-slate-800 text-white text-xs font-bold px-2.5 py-1.5 rounded-md border border-amber-400/70 cursor-pointer shrink-0"></select>
           <a href="admin.html" id="linkAdmin"
             class="px-2.5 py-1.5 rounded-md bg-teal-600 hover:bg-teal-500 text-[11px] font-bold whitespace-nowrap">Admin</a>
           <a href="m-expense.html" id="linkMobileExp"
@@ -289,23 +272,23 @@
         </div>
       </div>
 
-      <!-- 모바일 전용 가로 스크롤 7대 메뉴 -->
-      <div class="lg:hidden flex items-center gap-1.5 overflow-x-auto pb-2.5 text-xs font-bold">
+      <!-- 2단: 7대 글로벌 표준 메뉴 (러시아어 등 긴 언어에서도 겹치거나 잘리지 않고 전체 표시) -->
+      <nav class="flex items-center gap-1.5 overflow-x-auto sm:flex-wrap py-2 text-xs font-bold border-t border-white/10" id="mainNavDesktop">
         <button onclick="navigateMenu('regional')" data-menu="regional"
-          class="nav-tab px-2.5 py-1.5 rounded bg-white/10 whitespace-nowrap">지역상품예약</button>
+          class="nav-tab px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/15 transition whitespace-nowrap">지역상품예약</button>
         <button onclick="navigateMenu('attractions')" data-menu="attractions"
-          class="nav-tab px-2.5 py-1.5 rounded bg-white/10 whitespace-nowrap">지역상품소개</button>
+          class="nav-tab px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/15 transition whitespace-nowrap">지역상품소개</button>
         <button onclick="navigateMenu('limousine')" data-menu="limousine"
-          class="nav-tab px-2.5 py-1.5 rounded bg-white/10 whitespace-nowrap">리무진버스</button>
+          class="nav-tab px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/15 transition whitespace-nowrap">리무진버스</button>
         <button onclick="navigateMenu('airport')" data-menu="airport"
-          class="nav-tab px-2.5 py-1.5 rounded bg-white/10 whitespace-nowrap">공항 픽업</button>
+          class="nav-tab px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/15 transition whitespace-nowrap">공항 픽업</button>
         <button onclick="navigateMenu('inquiry')" data-menu="inquiry"
-          class="nav-tab px-2.5 py-1.5 rounded bg-white/10 whitespace-nowrap">여행문의</button>
+          class="nav-tab px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/15 transition whitespace-nowrap">여행문의</button>
         <button onclick="navigateMenu('faq')" data-menu="faq"
-          class="nav-tab px-2.5 py-1.5 rounded bg-white/10 whitespace-nowrap">FAQ</button>
+          class="nav-tab px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/15 transition whitespace-nowrap">FAQ</button>
         <button onclick="navigateMenu('etc')" data-menu="etc"
-          class="nav-tab px-2.5 py-1.5 rounded bg-white/10 whitespace-nowrap">회사소개</button>
-      </div>
+          class="nav-tab px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/15 transition whitespace-nowrap">회사소개</button>
+      </nav>
     </div>
   </header>
 
