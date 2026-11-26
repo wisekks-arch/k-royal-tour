@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>K-Royal Tour | PC 통합 관리자 (Admin)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Noto Sans KR', sans-serif; background: #f1f5f9; color: #1e293b; }
+    .admin-nav-btn.active { background: #0d9488; color: #fff; font-weight: 800; }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <!-- 상단 헤더 -->
+  <header class="bg-[#0f2544] text-white px-6 py-3.5 flex items-center justify-between shadow-md sticky top-0 z-30">
+    <div class="flex items-center gap-3">
+      <div class="w-8 h-8 rounded-lg bg-amber-400 text-slate-900 font-black flex items-center justify-center">A</div>
+      <div>
+        <div class="font-black text-base leading-none">K-Royal Tour 통합 관리자 (/admin)</div>
+        <div class="text-[11px] text-teal-300 mt-0.5">다국어 · 리무진 10대 배차 · 양방향 번역 · 수지 정산 · 실시간 알림</div>
+      </div>
+    </div>
+    <div class="flex items-center gap-2 text-xs font-bold">
+      <a href="index.html" target="_blank" class="px-3 py-1.5 rounded-lg bg-white/15 hover:bg-white/25">🌐 고객 사이트 보기</a>
+      <a href="m-expense.html" target="_blank" class="px-3 py-1.5 rounded-lg bg-orange-500 hover:bg-orange-400">📱 모바일 비용등록</a>
+      <button onclick="if(confirm('초기 샘플 데이터로 초기화하시겠습니까?')){TourStore.resetDb(); renderCurrentAdminTab();}" class="px-3 py-1.5 rounded-lg bg-rose-600/80 hover:bg-rose-600">DB 초기화</button>
+    </div>
+  </header>
+
+  <div class="flex-1 flex flex-col md:flex-row max-w-7xl w-full mx-auto p-4 gap-5">
+    <!-- 좌측 9대 메뉴 사이드바 -->
+    <aside class="w-full md:w-64 shrink-0 bg-white rounded-2xl p-3 shadow-sm border border-slate-200 h-fit">
+      <div class="text-[11px] font-bold text-slate-400 px-3 py-1.5">ADMIN 9대 메뉴</div>
+      <nav class="space-y-1 text-xs font-semibold">
+        <button onclick="switchAdminTab(1)" data-atab="1" class="admin-nav-btn active w-full text-left px-3 py-2.5 rounded-xl hover:bg-slate-100">1. 다국어 & 언어 활성화</button>
+        <button onclick="switchAdminTab(2)" data-atab="2" class="admin-nav-btn w-full text-left px-3 py-2.5 rounded-xl hover:bg-slate-100">2. 관광지·패키지·숙박·FAQ</button>
+        <button onclick="switchAdminTab(3)" data-atab="3" class="admin-nav-btn w-full text-left px-3 py-2.5 rounded-xl hover:bg-slate-100">3. 리무진 10대 & 배차·좌석</button>
+        <button onclick="switchAdminTab(4)" data-atab="4" class="admin-nav-btn w-full text-left px-3 py-2.5 rounded-xl hover:bg-slate-100">4. 공항 픽업·기사 요금</button>
+        <button onclick="switchAdminTab(5)" data-atab="5" class="admin-nav-btn w-full text-left px-3 py-2.5 rounded-xl hover:bg-slate-100">5. 날짜별 예약 마감 캘린더</button>
+        <button onclick="switchAdminTab(6)" data-atab="6" class="admin-nav-btn w-full text-left px-3 py-2.5 rounded-xl hover:bg-slate-100">6. 예약 내역 & 취소·수수료</button>
+        <button onclick="switchAdminTab(7)" data-atab="7" class="admin-nav-btn w-full text-left px-3 py-2.5 rounded-xl hover:bg-slate-100">7. 여행문의 양방향 번역센터</button>
+        <button onclick="switchAdminTab(8)" data-atab="8" class="admin-nav-btn w-full text-left px-3 py-2.5 rounded-xl hover:bg-slate-100">8. 행사별 비용·수지 정산·통계</button>
+        <button onclick="switchAdminTab(9)" data-atab="9" class="admin-nav-btn w-full text-left px-3 py-2.5 rounded-xl hover:bg-slate-100">9. 직원 계정 & 알림 설정</button>
+      </nav>
+    </aside>
+
+    <!-- 우측 콘텐츠 영역 -->
+    <main class="flex-1 bg-white rounded-2xl p-6 shadow-sm border border-slate-200 min-h-[600px]">
+      <div id="adminContentArea"></div>
+    </main>
+  </div>
+
+  <div id="adminToast" class="fixed bottom-5 right-5 z-50 hidden px-5 py-3 rounded-xl bg-slate-900 text-white text-xs font-bold shadow-xl border border-teal-400"></div>
+
+  <script src="assets/data.js"></script>
+  <script>
+    let currentAdminTab = 1;
+
+    function showToast(msg) {
+      const el = document.getElementById('adminToast');
+      el.innerText = msg;
+      el.classList.remove('hidden');
+      setTimeout(() => el.classList.add('hidden'), 3200);
+    }
+
+    function switchAdminTab(num) {
+      currentAdminTab = num;
+      document.querySelectorAll('.admin-nav-btn').forEach(b => {
+        b.classList.toggle('active', parseInt(b.dataset.atab) === num);
+      });
+      renderCurrentAdminTab();
+    }
+
+    function renderCurrentAdminTab() {
+      const db = TourStore.getDb();
+      const area = document.getElementById('adminContentArea');
+
+      if (currentAdminTab === 1) {
+        area.innerHTML = `
+          <h2 class="text-xl font-black text-[#0f2544] mb-1">1. 다국어 & 언어 활성화 관리 (플러그인형 자동 번역 연동)</h2>
+          <p class="text-xs text-slate-500 mb-5">원하는 언어(예: 베트남어 vi) 스위치를 켜면 코드 수정 없이 고객 사이트 상단 언어 선택기 및 문의 양방향 자동 번역이 즉시 활성화됩니다.</p>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+            ${db.languages.map((l, idx) => `
+              <div class="p-4 rounded-xl border ${l.active ? 'border-teal-500 bg-teal-50/40' : 'border-slate-200 bg-slate-50'} flex items-center justify-between">
+                <div>
+                  <div class="font-bold text-sm">${l.flag} ${l.name} (${l.code})</div>
+                  <div class="text-xs text-slate-500">${l.nativeName}</div>
+                </div>
+                <button ${l.locked ? 'disabled' : `onclick="toggleLang(${idx})"`} class="px-3 py-1.5 rounded-lg text-xs font-bold ${l.active ? 'bg-teal-600 text-white' : 'bg-slate-300 text-slate-700'} ${l.locked ? 'opacity-70 cursor-not-allowed' : 'cursor-pointer'}">
+                  ${l.active ? '활성 (ON)' : '비활성 (OFF)'}
+                </button>
+              </div>
+            `).join('')}
+          </div>
+        `;
+      } else if (currentAdminTab === 2) {
+        area.innerHTML = `
+          <h2 class="text-xl font-black text-[#0f2544] mb-1">2. 관광지 · 지역별 패키지 · 숙박 · FAQ 콘텐츠 관리</h2>
+          <p class="text-xs text-slate-500 mb-4">현재 활성화된 언어(${db.languages.filter(l=>l.active).map(l=>l.name).join(', ')}) 기준으로 패키지, 숙박업체, 관광지를 관리합니다.</p>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <div class="p-4 rounded-xl border border-slate-200 bg-slate-50">
+              <h3 class="font-bold text-sm mb-2">➕ 신규 관광지 추가</h3>
+              <div class="grid grid-cols-2 gap-2 text-xs mb-2">
+                <input id="newAttReg" placeholder="지역 (예: 부산)" class="border rounded px-2 py-1.5 bg-white">
+                <input id="newAttCat" placeholder="카테고리 (예: 명소/입장권)" class="border rounded px-2 py-1.5 bg-white">
+                <input id="newAttKo" placeholder="한국어 명칭 *" class="border rounded px-2 py-1.5 bg-white">
+                <input id="newAttEn" placeholder="영어 명칭 *" class="border rounded px-2 py-1.5 bg-white">
+              </div>
+              <button onclick="addNewAttraction()" class="px-4 py-1.5 rounded-lg bg-[#0f2544] text-white text-xs font-bold">관광지 등록</button>
+            </div>
+            <div class="p-4 rounded-xl border border-slate-200 bg-slate-50">
+              <h3 class="font-bold text-sm mb-2">🏨 등록된 지역별 패키지 & 제휴 숙박 (${db.regionalPackages.length}개 권역)</h3>
+              <div class="space-y-1.5 text-xs max-h-32 overflow-y-auto">
+                ${db.regionalPackages.map(p => `
+                  <div class="flex justify-between bg-white px-2.5 py-1.5 rounded border">
+                    <strong>${p.name.ko}</strong>
+                    <span class="text-teal-700">제휴 호텔 ${p.hotels.length}곳 · ₩${p.basePerDayKrw.toLocaleString()}/일</span>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          </div>
+          <h3 class="font-bold text-sm mb-2">등록된 관광지 목록 (${db.attractions.length}건)</h3>
+          <div class="space-y-1.5 text-xs max-h-60 overflow-y-auto">
+            ${db.attractions.map((a, i) => `
+              <div class="flex items-center justify-between p-2.5 rounded-lg border">
+                <span><strong>[${a.region}]</strong> ${a.title.ko} (${a.title.en}) · ₩${a.priceKrw.toLocaleString()}</span>
+                <button onclick="deleteAttraction(${i})" class="text-rose-600 font-bold">삭제</button>
+              </div>
+            `).join('')}
+          </div>
+        `;
+      } else if (currentAdminTab === 3) {
+        area.innerHTML = `
+          <h2 class="text-xl font-black text-[#0f2544] mb-1">3. 전용 리무진 버스 10대 마스터 & 날짜·노선별 배차·좌석 관리</h2>
+          <p class="text-xs text-slate-500 mb-4">보유 리무진 차량을 등록/삭제하고, 날짜·이동지역별 배차 및 사전 좌석 예약을 관리합니다.</p>
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+            <div class="p-4 rounded-xl border border-slate-200">
+              <div class="flex justify-between items-center mb-3">
+                <h3 class="font-bold text-sm">🚌 보유 리무진 마스터 (현재 ${db.busFleet.length}대)</h3>
+                <button onclick="addNewBus()" class="px-2.5 py-1 rounded bg-teal-600 text-white text-xs font-bold">+ 신규 리무진 추가</button>
+              </div>
+              <div class="space-y-1.5 text-xs max-h-72 overflow-y-auto">
+                ${db.busFleet.map((b, i) => `
+                  <div class="flex items-center justify-between p-2 rounded bg-slate-50 border">
+                    <div><strong>${b.name}</strong> (${b.plate}) · ${b.grade} · ${b.driver}</div>
+                    <div class="flex gap-2">
+                      <button onclick="toggleBusStatus(${i})" class="px-2 py-0.5 rounded ${b.status==='available'?'bg-teal-100 text-teal-800':'bg-amber-100 text-amber-800'} font-bold">${b.status==='available'?'운행가능':'정비중'}</button>
+                      <button onclick="deleteBus(${i})" class="text-rose-600 font-bold">삭제</button>
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+            <div class="p-4 rounded-xl border border-slate-200">
+              <h3 class="font-bold text-sm mb-3">📅 신규 날짜·노선 배차 등록</h3>
+              <div class="grid grid-cols-2 gap-2 text-xs mb-3">
+                <select id="dispBusSel" class="border rounded px-2 py-1.5">
+                  ${db.busFleet.filter(b=>b.status==='available').map(b=>`<option value="${b.id}">${b.name} (${b.grade})</option>`).join('')}
+                </select>
+                <select id="dispRouteSel" class="border rounded px-2 py-1.5">
+                  <option>서울 ➔ 부산</option><option>부산 ➔ 서울</option><option>서울 ➔ 광주</option><option>서울 ➔ 안동</option><option>서울 ➔ 여수</option>
+                </select>
+                <input type="date" id="dispDateInp" class="border rounded px-2 py-1.5" value="${new Date(Date.now()+2*86400000).toISOString().split('T')[0]}">
+                <input type="time" id="dispTimeInp" class="border rounded px-2 py-1.5" value="09:00">
+              </div>
+              <button onclick="addBusDispatch()" class="w-full py-2 rounded-lg bg-[#0f2544] text-white text-xs font-bold mb-4">배차 스케줄 등록 (중복 자동방지)</button>
+              <h4 class="font-bold text-xs mb-2">현재 배차 목록 (${db.busDispatches.length}건)</h4>
+              <div class="space-y-1.5 text-xs max-h-44 overflow-y-auto">
+                ${db.busDispatches.map((d, i) => `
+                  <div class="flex items-center justify-between p-2 rounded border bg-slate-50">
+                    <span>${d.date} ${d.time} · <strong>${d.route}</strong> (${d.busId})</span>
+                    <button onclick="toggleDispatchOpen(${i})" class="px-2 py-0.5 rounded font-bold ${d.status==='Open'?'bg-teal-600 text-white':'bg-rose-600 text-white'}">${d.status}</button>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          </div>
+        `;
+      } else if (currentAdminTab === 4) {
+        area.innerHTML = `
+          <h2 class="text-xl font-black text-[#0f2544] mb-1">4. 멀티 공항(인천 ICN / 김해 PUS) 픽업 차량·기사 관리</h2>
+          <p class="text-xs text-slate-500 mb-4">공항별 정찰제 요금 및 전담 운전기사 프로필을 관리합니다.</p>
+          <div class="space-y-2.5 text-xs">
+            ${db.airportTransfers.map((a, i) => `
+              <div class="p-4 rounded-xl border flex flex-wrap items-center justify-between gap-3 bg-slate-50">
+                <div>
+                  <span class="px-2 py-0.5 rounded bg-sky-100 text-sky-900 font-bold">${a.airport}</span>
+                  <strong class="ml-2 text-sm">${a.vehicle}</strong> (${a.routeLabel})
+                  <div class="text-slate-500 mt-1">기사: ${a.chauffeur} (${a.exp}) · 가능언어: ${a.langs.join(', ')} · ★${a.rating}</div>
+                </div>
+                <div class="flex items-center gap-2">
+                  <input type="number" id="atPrice_${i}" value="${a.priceKrw}" class="border rounded px-2 py-1 w-28 font-bold bg-white">
+                  <button onclick="updateAirportPrice(${i})" class="px-3 py-1.5 rounded bg-teal-600 text-white font-bold">요금 저장</button>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        `;
+      } else if (currentAdminTab === 5) {
+        area.innerHTML = `
+          <h2 class="text-xl font-black text-[#0f2544] mb-1">5. 날짜별 전체 상품 예약 마감(Close) 캘린더</h2>
+          <p class="text-xs text-slate-500 mb-4">특정 성수기·휴무 날짜를 마감 처리하면 고객 사이트에서 해당 날짜 신규 예약이 차단됩니다.</p>
+          <div class="flex gap-2 mb-4 text-xs">
+            <input type="date" id="closeDateInput" class="border rounded-lg px-3 py-2">
+            <button onclick="addClosedDate()" class="px-4 py-2 rounded-lg bg-rose-600 text-white font-bold">해당 날짜 예약 마감 추가</button>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            ${db.closedDates.length === 0 ? '<span class="text-xs text-slate-400">현재 마감 설정된 날짜가 없습니다.</span>' : db.closedDates.map((dt, i) => `
+              <span class="px-3 py-1.5 rounded-full bg-rose-100 text-rose-800 text-xs font-bold flex items-center gap-2">
+                ${dt} <button onclick="removeClosedDate(${i})" class="text-rose-900 font-black">✕</button>
+              </span>
+            `).join('')}
+          </div>
+        `;
+      } else if (currentAdminTab === 6) {
+        area.innerHTML = `
+          <h2 class="text-xl font-black text-[#0f2544] mb-1">6. 고객 예약 내역 & 취소·수수료 정산 관리</h2>
+          <p class="text-xs text-slate-500 mb-4">고객 예약 내역 조회 및 취소 시점별 위약금/환불 처리를 수행합니다.</p>
+          <div class="space-y-2.5 text-xs">
+            ${db.reservations.map((r, i) => `
+              <div class="p-4 rounded-xl border flex flex-wrap items-center justify-between gap-3 ${r.status==='Cancelled'?'bg-slate-100 opacity-70':'bg-white'}">
+                <div>
+                  <div class="font-black text-sm text-[#0f2544]">${r.id} · ${r.customerName} (${r.locale.toUpperCase()})</div>
+                  <div class="text-slate-600 mt-0.5">${r.type} · ${r.airportRoute} · 행사코드: <strong>${r.tourCode}</strong></div>
+                  <div class="text-slate-400 mt-0.5">${r.createdAt} · ${r.email}</div>
+                </div>
+                <div class="text-right">
+                  <div class="font-black text-orange-600 text-sm">₩${r.totalKrw.toLocaleString()}</div>
+                  <div class="mt-1 flex gap-2 justify-end">
+                    <span class="px-2 py-0.5 rounded font-bold ${r.status==='Confirmed'?'bg-teal-100 text-teal-800':'bg-rose-100 text-rose-800'}">${r.status}</span>
+                    ${r.status==='Confirmed' ? `<button onclick="cancelReservation(${i})" class="px-2 py-0.5 rounded bg-rose-600 text-white font-bold">취소(20% 수수료)</button>` : ''}
+                  </div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        `;
+      } else if (currentAdminTab === 7) {
+        area.innerHTML = `
+          <h2 class="text-xl font-black text-[#0f2544] mb-1">7. 여행문의 양방향 자동 번역 · 이메일 발송 센터</h2>
+          <p class="text-xs text-slate-500 mb-4">외국인 고객의 문의가 한국어로 자동 번역되어 표시되며, 한국어로 답변 작성 시 고객 언어로 자동 번역 및 이메일 발송됩니다.</p>
+          <div class="space-y-4 text-xs">
+            ${db.inquiries.map((inq, i) => `
+              <div class="p-4 rounded-xl border border-slate-200 bg-slate-50">
+                <div class="flex justify-between items-center mb-2">
+                  <div>
+                    <span class="px-2 py-0.5 rounded bg-sky-100 text-sky-900 font-bold">${inq.type==='custom'?'맞춤 행사 의뢰':'1:1 Q&A'}</span>
+                    <strong class="ml-2 text-sm">${inq.customerName}</strong> (${inq.sourceLocale.toUpperCase()} · ${inq.email})
+                  </div>
+                  <span class="px-2.5 py-0.5 rounded-full font-bold ${inq.status==='Answered'?'bg-teal-100 text-teal-800':'bg-amber-100 text-amber-800'}">${inq.status}</span>
+                </div>
+                ${inq.type==='custom' ? `<div class="mb-2 text-slate-600 bg-white p-2 rounded border">일정: ${inq.travelDates} | 인원: ${inq.paxDetail} | 공항: ${inq.airport} | 지역: ${(inq.regions||[]).join(',')} | 이동: ${inq.transport}</div>` : ''}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mb-3">
+                  <div class="p-2.5 rounded bg-white border"><strong class="text-slate-500 block mb-1">고객 원문 (${inq.sourceLocale}):</strong>${inq.originalText}</div>
+                  <div class="p-2.5 rounded bg-amber-50 border border-amber-200"><strong class="text-amber-900 block mb-1">한국어 자동 번역본:</strong>${inq.koTranslatedText}</div>
+                </div>
+                <textarea id="replyKo_${i}" rows="2" class="w-full border rounded-lg p-2 bg-white mb-2" placeholder="한국어로 답변을 작성하세요...">${inq.adminReplyKo || ''}</textarea>
+                <div class="flex flex-wrap gap-2">
+                  <button onclick="sendTranslatedReply(${i})" class="px-4 py-2 rounded-lg bg-teal-600 hover:bg-teal-500 text-white font-bold">🌐 고객 언어(${inq.sourceLocale.toUpperCase()})로 자동 번역 & 이메일 발송</button>
+                  ${inq.type==='custom' ? `<button onclick="convertInquiryToTour(${i})" class="px-4 py-2 rounded-lg bg-[#0f2544] text-white font-bold">➕ 8번 메뉴 신규 행사로 전환</button>` : ''}
+                </div>
+                ${inq.translatedReply ? `<div class="mt-2 p-2.5 rounded bg-teal-50 border border-teal-200 text-teal-900"><strong>발송된 자동 번역 답변 (${inq.sourceLocale.toUpperCase()}):</strong> ${inq.translatedReply}</div>` : ''}
+              </div>
+            `).join('')}
+          </div>
+        `;
+      } else if (currentAdminTab === 8) {
+        let totalRev = 0, totalExp = 0;
+        db.tourOperations.forEach(op => {
+          totalRev += op.revenueKrw;
+          totalExp += op.expenses.reduce((acc, e) => acc + e.amountKrw, 0);
+        });
+        const totalProfit = totalRev - totalExp;
+        const avgMargin = totalRev > 0 ? ((totalProfit / totalRev) * 100).toFixed(1) : '0.0';
+
+        area.innerHTML = `
+          <h2 class="text-xl font-black text-[#0f2544] mb-1">8. 팀/행사별 운영 · 비용 지출 · 수지 정산 및 통계 대시보드</h2>
+          <p class="text-xs text-slate-500 mb-4">모바일 현장 진행자(/m/expense)가 등록한 영수증·비용 내역이 실시간 합산됩니다.</p>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5">
+            <div class="p-4 rounded-xl bg-sky-50 border border-sky-200"><div class="text-xs text-sky-700 font-bold">총 행사 수</div><div class="text-xl font-black text-[#0f2544]">${db.tourOperations.length}건</div></div>
+            <div class="p-4 rounded-xl bg-teal-50 border border-teal-200"><div class="text-xs text-teal-700 font-bold">총 수입</div><div class="text-xl font-black text-teal-800">₩${totalRev.toLocaleString()}</div></div>
+            <div class="p-4 rounded-xl bg-rose-50 border border-rose-200"><div class="text-xs text-rose-700 font-bold">총 지출 원가</div><div class="text-xl font-black text-rose-700">₩${totalExp.toLocaleString()}</div></div>
+            <div class="p-4 rounded-xl bg-amber-50 border border-amber-200"><div class="text-xs text-amber-800 font-bold">총 순수익 (평균 마진)</div><div class="text-xl font-black text-amber-900">₩${totalProfit.toLocaleString()} (${avgMargin}%)</div></div>
+          </div>
+          <div class="space-y-4 text-xs">
+            ${db.tourOperations.map((op, i) => {
+              const expSum = op.expenses.reduce((s, e) => s + e.amountKrw, 0);
+              const profit = op.revenueKrw - expSum;
+              const margin = op.revenueKrw > 0 ? ((profit / op.revenueKrw) * 100).toFixed(1) : '0.0';
+              return `
+                <div class="p-4 rounded-xl border border-slate-200 bg-slate-50">
+                  <div class="flex flex-wrap justify-between items-center gap-2 mb-2">
+                    <div>
+                      <span class="px-2 py-0.5 rounded bg-[#0f2544] text-white font-bold">${op.tourCode}</span>
+                      <strong class="ml-2 text-sm">${op.title}</strong>
+                      <span class="ml-2 text-teal-700 font-bold">담당: ${op.manager}</span>
+                    </div>
+                    <div class="font-black text-sm">수입 ₩${op.revenueKrw.toLocaleString()} | 지출 ₩${expSum.toLocaleString()} | <span class="text-teal-700">순수익 ₩${profit.toLocaleString()} (${margin}%)</span></div>
+                  </div>
+                  <div class="bg-white rounded-lg p-3 border space-y-1.5">
+                    <div class="font-bold text-slate-500">지출 내역 (${op.expenses.length}건)</div>
+                    ${op.expenses.length === 0 ? '<div class="text-slate-400">등록된 지출이 없습니다.</div>' : op.expenses.map(e => `
+                      <div class="flex justify-between items-center border-b border-slate-100 pb-1">
+                        <span>[${e.date}] <strong>${e.category}</strong> - ${e.memo} <span class="text-slate-400">(${e.writer})</span> ${e.receiptName ? `📎 ${e.receiptName}` : ''}</span>
+                        <strong class="text-rose-600">-₩${e.amountKrw.toLocaleString()}</strong>
+                      </div>
+                    `).join('')}
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        `;
+      } else if (currentAdminTab === 9) {
+        area.innerHTML = `
+          <h2 class="text-xl font-black text-[#0f2544] mb-1">9. 관리자·직원 개인정보 & 실시간 알림(이메일 / 카카오톡) 설정</h2>
+          <p class="text-xs text-slate-500 mb-4">신규 예약·문의 발생 시 아래 설정된 직원 이메일로 실시간 알림이 자동 발송됩니다.</p>
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-6">
+            <div class="p-4 rounded-xl border border-slate-200">
+              <h3 class="font-bold text-sm mb-3">👥 직원 및 알림 수신 설정</h3>
+              <div class="space-y-2 text-xs mb-3">
+                ${db.staffList.map((s, i) => `
+                  <div class="p-2.5 rounded-lg border bg-slate-50 flex flex-wrap justify-between items-center gap-2">
+                    <div><strong>${s.name}</strong> (${s.role})<br><span class="text-slate-500">${s.email} · ${s.phone}</span></div>
+                    <div class="flex gap-1.5">
+                      <button onclick="toggleStaffNotify(${i}, 'notifyBooking')" class="px-2 py-1 rounded font-bold ${s.notifyBooking?'bg-teal-600 text-white':'bg-slate-200'}">예약알림 ${s.notifyBooking?'ON':'OFF'}</button>
+                      <button onclick="toggleStaffNotify(${i}, 'notifyInquiry')" class="px-2 py-1 rounded font-bold ${s.notifyInquiry?'bg-orange-500 text-white':'bg-slate-200'}">문의알림 ${s.notifyInquiry?'ON':'OFF'}</button>
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+              <div class="grid grid-cols-2 gap-2 text-xs">
+                <input id="stName" placeholder="성명 *" class="border rounded px-2 py-1.5">
+                <input id="stRole" placeholder="부서/직책" class="border rounded px-2 py-1.5">
+                <input id="stEmail" placeholder="이메일 *" class="border rounded px-2 py-1.5">
+                <input id="stPhone" placeholder="휴대폰(알림톡용)" class="border rounded px-2 py-1.5">
+              </div>
+              <button onclick="addNewStaff()" class="mt-2 px-4 py-1.5 rounded-lg bg-[#0f2544] text-white text-xs font-bold">+ 직원 추가</button>
+            </div>
+            <div class="p-4 rounded-xl border border-amber-300 bg-amber-50/40">
+              <h3 class="font-bold text-sm mb-2">💬 향후 카카오톡 알림톡 연동 어댑터 설정</h3>
+              <div class="space-y-2 text-xs">
+                <div><label class="font-bold">카카오 비즈채널 ID:</label> <input value="${db.kakaoConfig.bizChannelId}" class="border rounded px-2 py-1 bg-white w-full"></div>
+                <div><label class="font-bold">예약 접수 템플릿 코드:</label> <input value="${db.kakaoConfig.bookingTplCode}" class="border rounded px-2 py-1 bg-white w-full"></div>
+                <div><label class="font-bold">문의 접수 템플릿 코드:</label> <input value="${db.kakaoConfig.inquiryTplCode}" class="border rounded px-2 py-1 bg-white w-full"></div>
+                <div class="text-teal-800 font-bold">상태: ${db.kakaoConfig.status}</div>
+              </div>
+            </div>
+          </div>
+          <h3 class="font-bold text-sm mb-2">📨 실시간 직원 알림 발송 내역 로그 (${db.notificationLogs.length}건)</h3>
+          <div class="space-y-2 text-xs max-h-60 overflow-y-auto">
+            ${db.notificationLogs.map(log => `
+              <div class="p-3 rounded-lg border bg-slate-50">
+                <div class="flex justify-between font-bold">
+                  <span>[${log.eventType}] ${log.subject}</span>
+                  <span class="text-teal-700">${log.status} · ${log.time}</span>
+                </div>
+                <div class="text-slate-500 mt-1">수신자: ${log.recipientName} (${log.recipientEmails}) | 채널: ${log.channel}</div>
+                <div class="text-slate-700 mt-1 bg-white p-2 rounded border">${log.previewBody}</div>
+              </div>
+            `).join('')}
+          </div>
+        `;
+      }
+    }
+
+    // 관리자 액션 핸들러들
+    function toggleLang(idx) {
+      const db = TourStore.getDb();
+      db.languages[idx].active = !db.languages[idx].active;
+      TourStore.saveDb(db);
+      renderCurrentAdminTab();
+      showToast(`🌐 ${db.languages[idx].name} 상태가 [${db.languages[idx].active?'활성':'비활성'}]으로 변경되었습니다.`);
+    }
+    function addNewAttraction() {
+      const ko = document.getElementById('newAttKo').value.trim();
+      const en = document.getElementById('newAttEn').value.trim();
+      if (!ko || !en) return showToast('⚠️ 한국어/영어 명칭을 입력하세요.');
+      const db = TourStore.getDb();
+      db.attractions.unshift({ id: 'att_' + Date.now(), region: document.getElementById('newAttReg').value || '서울', category: document.getElementById('newAttCat').value || '명소/입장권', title: { ko, en }, desc: { ko: '관리자 신규 등록 명소', en: 'Newly added attraction' }, priceKrw: 10000, ticketUrl: '#', tag: 'New' });
+      TourStore.saveDb(db);
+      renderCurrentAdminTab();
+      showToast('✅ 신규 관광지가 등록되었습니다.');
+    }
+    function deleteAttraction(i) { const db = TourStore.getDb(); db.attractions.splice(i,1); TourStore.saveDb(db); renderCurrentAdminTab(); }
+    function addNewBus() {
+      const db = TourStore.getDb();
+      const n = db.busFleet.length + 1;
+      db.busFleet.push({ id: 'bus_' + Date.now(), name: `리무진 ${n}호차`, plate: `서울70바 ${1000+n}`, grade: '28인승 우등', capacity: 28, driver: '전담 기사', status: 'available' });
+      TourStore.saveDb(db); renderCurrentAdminTab(); showToast(`🚌 리무진 ${n}호차가 추가되었습니다.`);
+    }
+    function toggleBusStatus(i) { const db = TourStore.getDb(); db.busFleet[i].status = db.busFleet[i].status==='available'?'maintenance':'available'; TourStore.saveDb(db); renderCurrentAdminTab(); }
+    function deleteBus(i) { const db = TourStore.getDb(); db.busFleet.splice(i,1); TourStore.saveDb(db); renderCurrentAdminTab(); }
+    function addBusDispatch() {
+      const busId = document.getElementById('dispBusSel').value;
+      const route = document.getElementById('dispRouteSel').value;
+      const date = document.getElementById('dispDateInp').value;
+      const time = document.getElementById('dispTimeInp').value;
+      const db = TourStore.getDb();
+      if (db.busDispatches.some(d => d.busId === busId && d.date === date && d.time === time)) {
+        return showToast('⚠️ 동일 날짜/시간에 이미 배정된 차량입니다 (중복 배정 방지).');
+      }
+      db.busDispatches.unshift({ id: 'disp_' + Date.now(), busId, route, date, time, pickupSpot: '서울역/명동 지정 승강장', priceKrw: 68000, status: 'Open', bookedSeats: [], blockedSeats: [] });
+      TourStore.saveDb(db); renderCurrentAdminTab(); showToast('✅ 신규 버스 배차가 등록되었습니다.');
+    }
+    function toggleDispatchOpen(i) { const db = TourStore.getDb(); db.busDispatches[i].status = db.busDispatches[i].status==='Open'?'Closed':'Open'; TourStore.saveDb(db); renderCurrentAdminTab(); }
+    function updateAirportPrice(i) { const db = TourStore.getDb(); db.airportTransfers[i].priceKrw = parseInt(document.getElementById(`atPrice_${i}`).value) || 0; TourStore.saveDb(db); showToast('✅ 공항 픽업 요금이 수정되었습니다.'); }
+    function addClosedDate() { const dt = document.getElementById('closeDateInput').value; if(!dt) return; const db = TourStore.getDb(); if(!db.closedDates.includes(dt)) db.closedDates.push(dt); TourStore.saveDb(db); renderCurrentAdminTab(); }
+    function removeClosedDate(i) { const db = TourStore.getDb(); db.closedDates.splice(i,1); TourStore.saveDb(db); renderCurrentAdminTab(); }
+    function cancelReservation(i) { const db = TourStore.getDb(); db.reservations[i].status = 'Cancelled'; TourStore.saveDb(db); renderCurrentAdminTab(); showToast('⚠️ 예약이 취소(수수료 정산) 처리되었습니다.'); }
+    function sendTranslatedReply(i) {
+      const db = TourStore.getDb();
+      const koText = document.getElementById(`replyKo_${i}`).value.trim();
+      if (!koText) return showToast('⚠️ 한국어 답변을 입력해 주세요.');
+      const inq = db.inquiries[i];
+      inq.adminReplyKo = koText;
+      inq.translatedReply = autoTranslateText(koText, 'ko', inq.sourceLocale);
+      inq.status = 'Answered';
+      TourStore.saveDb(db);
+      renderCurrentAdminTab();
+      showToast(`✅ [${inq.sourceLocale.toUpperCase()}] 언어로 자동 번역 및 고객 이메일 발송 완료!`);
+    }
+    function convertInquiryToTour(i) {
+      const db = TourStore.getDb();
+      const inq = db.inquiries[i];
+      const code = `KR-CST-${Date.now().toString().slice(-4)}`;
+      db.tourOperations.unshift({ tourCode: code, title: `${inq.customerName} 맞춤 행사`, routeBadge: inq.airport || 'ICN', manager: '이서연 가이드', progress: 20, revenueKrw: 2000000, expenses: [] });
+      TourStore.saveDb(db);
+      showToast(`🎉 8번 메뉴 신규 행사(${code})로 전환되었습니다!`);
+    }
+    function toggleStaffNotify(i, field) { const db = TourStore.getDb(); db.staffList[i][field] = !db.staffList[i][field]; TourStore.saveDb(db); renderCurrentAdminTab(); }
+    function addNewStaff() {
+      const name = document.getElementById('stName').value.trim();
+      const email = document.getElementById('stEmail').value.trim();
+      if (!name || !email) return showToast('⚠️ 직원 성명과 이메일을 입력하세요.');
+      const db = TourStore.getDb();
+      db.staffList.push({ id: 'st_' + Date.now(), name, role: document.getElementById('stRole').value || '담당자', email, phone: document.getElementById('stPhone').value || '', notifyBooking: true, notifyInquiry: true });
+      TourStore.saveDb(db); renderCurrentAdminTab(); showToast('✅ 직원이 추가되었습니다.');
+    }
+
+    window.addEventListener('DOMContentLoaded', () => renderCurrentAdminTab());
+  </script>
+</body>
+</html>

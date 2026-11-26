@@ -1,0 +1,1831 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>K-Royal Tour | 외국인 대상 대한민국 프리미엄 인바운드 여행사</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Noto+Serif+KR:wght@600;900&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --navy: #0f2544;
+      --teal: #0d9488;
+      --coral: #f97316;
+      --gold: #d4af37;
+      --hanji: #fcf9f2;
+    }
+
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      background-color: var(--hanji);
+      color: #1e293b;
+      overflow-x: hidden;
+    }
+
+    .serif-kr {
+      font-family: 'Noto Serif KR', serif;
+    }
+
+    /* 한국 전통 창호문살 오프닝 인트로 */
+    #hanokIntroOverlay {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      overflow: hidden;
+      background: radial-gradient(circle at center, #1e3a5f 0%, #0b172a 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.8s ease, visibility 0.8s ease;
+    }
+
+    #hanokIntroOverlay.hidden-intro {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .changho-door {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 50%;
+      z-index: 20;
+      background-color: #ebd9be;
+      background-image:
+        linear-gradient(rgba(252, 245, 232, 0.28), rgba(242, 226, 200, 0.28)),
+        url('assets/images/hanok_wood_changho.jpg');
+      background-size: cover;
+      background-position: center;
+      border: 14px solid #4a2c16;
+      box-shadow: inset 0 0 55px rgba(45, 24, 10, 0.55), 0 0 30px rgba(0, 0, 0, 0.45);
+      transition: transform 2.5s cubic-bezier(0.22, 1, 0.36, 1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .hanji-hangul-watermark {
+      position: absolute;
+      inset: 18px;
+      pointer-events: none;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 16px;
+      color: rgba(74, 44, 22, 0.34);
+      font-family: 'Noto Serif KR', serif;
+      font-weight: 900;
+      letter-spacing: 0.25em;
+    }
+
+    .changho-left {
+      left: 0;
+      transform-origin: left center;
+    }
+
+    .changho-right {
+      right: 0;
+      transform-origin: right center;
+    }
+
+    .intro-opened .changho-left {
+      transform: translateX(-100%);
+    }
+
+    .intro-opened .changho-right {
+      transform: translateX(100%);
+    }
+
+    .hanbok-stage {
+      position: relative;
+      z-index: 10;
+      text-align: center;
+      color: #fff;
+      opacity: 0;
+      transform: scale(0.92);
+      transition: all 1s ease 0.4s;
+    }
+
+    .intro-opened .hanbok-stage {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    @keyframes bowAnim {
+
+      0%,
+      100% {
+        transform: translateY(0) scaleY(1);
+      }
+
+      50% {
+        transform: translateY(8px) scaleY(0.95);
+      }
+    }
+
+    .hanbok-bow {
+      animation: bowAnim 2.6s ease-in-out infinite;
+    }
+
+    /* 항공사 스타일 버스 좌석 평면도 */
+    .bus-cabin-shell {
+      background: linear-gradient(180deg, #e2e8f0 0%, #f8fafc 12%, #ffffff 100%);
+      border: 4px solid #334155;
+      border-radius: 36px 36px 20px 20px;
+      box-shadow: 0 18px 40px rgba(15, 37, 68, 0.15);
+      position: relative;
+    }
+
+    .seat-btn {
+      transition: all 0.18s ease;
+      border: 2px solid #cbd5e1;
+      border-radius: 10px 10px 6px 6px;
+      position: relative;
+    }
+
+    .seat-btn.available:hover {
+      border-color: #0d9488;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 10px rgba(13, 148, 136, 0.25);
+    }
+
+    .seat-btn.selected {
+      background: #0d9488 !important;
+      color: #fff !important;
+      border-color: #0f766e !important;
+    }
+
+    .seat-btn.occupied {
+      background: #cbd5e1 !important;
+      color: #64748b !important;
+      cursor: not-allowed;
+    }
+
+    .seat-btn.blocked {
+      background: #fef3c7 !important;
+      color: #b45309 !important;
+      border-color: #f59e0b !important;
+      cursor: not-allowed;
+    }
+
+    .seat-btn.dimmed {
+      opacity: 0.28;
+    }
+  </style>
+</head>
+
+<body class="min-h-screen flex flex-col">
+
+  <!-- 1. 한국 전통 창호문살 오프닝 인트로 -->
+  <div id="hanokIntroOverlay">
+    <!-- 좌·우 실사 나무 창호문살 도어 (한지 위 한글 서예 문자 적용) -->
+    <div class="changho-door changho-left">
+      <div class="hanji-hangul-watermark text-sm md:text-lg">
+        <div class="flex justify-between"><span>나랏말싸미</span><span>훈민정음</span></div>
+        <div class="text-right text-xs md:text-sm opacity-80">아름다운 대한민국 · 한옥의 멋</div>
+      </div>
+      <div class="relative z-10 bg-[#fcf7ea]/92 px-8 py-7 rounded-2xl border-4 border-[#6b3e1b] text-center shadow-2xl backdrop-blur-sm">
+        <div class="text-base tracking-widest text-[#7c2d12] font-bold mb-2">대한민국 전통의 미 · 歡迎</div>
+        <div class="serif-kr text-5xl md:text-6xl font-black text-[#1e293b]">어서 오세요</div>
+        <div class="serif-kr text-xs md:text-sm font-bold text-[#6b3e1b] mt-2 tracking-widest">귀한 발걸음을 진심으로 환영합니다</div>
+      </div>
+    </div>
+    <div class="changho-door changho-right">
+      <div class="hanji-hangul-watermark text-sm md:text-lg">
+        <div class="flex justify-between"><span>천년의 미소</span><span>백의민족</span></div>
+        <div class="text-left text-xs md:text-sm opacity-80">정성을 다해 모시겠습니다 · 가나다라</div>
+      </div>
+      <div class="relative z-10 bg-[#fcf7ea]/92 px-8 py-7 rounded-2xl border-4 border-[#6b3e1b] text-center shadow-2xl backdrop-blur-sm">
+        <!-- 태극 문양 SVG (2배 확대: w-20 h-20) -->
+        <svg class="w-20 h-20 mx-auto mb-2" viewBox="0 0 100 100">
+          <circle cx="50" cy="50" r="46" fill="#fff" stroke="#1e293b" stroke-width="3" />
+          <path d="M50,4 A46,46 0 0,1 50,96 A23,23 0 0,1 50,50 A23,23 0 0,0 50,4 Z" fill="#cd2e3a" />
+          <path d="M50,96 A46,46 0 0,1 50,4 A23,23 0 0,1 50,50 A23,23 0 0,0 50,96 Z" fill="#0047a0" />
+        </svg>
+        <div class="serif-kr text-lg font-black text-[#0f2544]">K-ROYAL TOUR</div>
+        <div class="serif-kr text-xs font-bold text-[#6b3e1b] mt-1 tracking-widest">대한민국 프리미엄 투어</div>
+      </div>
+    </div>
+
+    <!-- 창호문이 열리면 나타나는 한복 배례 환영 스테이지 (5초 체류 후 메인 이동) -->
+    <div class="hanbok-stage px-6 max-w-2xl">
+      <div
+        class="inline-block px-4 py-1 rounded-full bg-amber-400/20 border border-amber-300/50 text-amber-200 text-xs font-bold tracking-widest mb-3">
+        GYEONGBOKGUNG · TRADITIONAL KOREA
+      </div>
+      <!-- 한복 입은 여성이 공수하며 배례(인사)하는 실사풍 환영 이미지 -->
+      <div
+        class="hanbok-bow mx-auto w-56 h-56 md:w-64 md:h-64 mb-4 rounded-full overflow-hidden border-4 border-amber-300/80 shadow-2xl bg-amber-950/40">
+        <img src="assets/images/hanbok_bow_welcome.jpg" alt="전통 한복을 입고 정중히 배례하는 환영 인사" class="w-full h-full object-cover object-top">
+      </div>
+      <h1 id="introWelcomeTitle" class="serif-kr text-4xl md:text-5xl font-black text-amber-200 tracking-wide mb-2">
+        Welcome to Korea</h1>
+      <p id="introWelcomeSub" class="text-slate-200 text-sm md:text-base mb-5">한국의 아름다운 전통과 현대가 어우러진 특별한 여정으로 초대합니다.</p>
+      <div class="flex flex-col items-center gap-2">
+        <button onclick="closeIntro()"
+          class="px-7 py-3 rounded-full bg-amber-400 hover:bg-amber-300 text-slate-900 font-black text-sm shadow-lg transition">
+          메인 화면으로 바로 입장 ➔
+        </button>
+        <span class="text-[11px] text-amber-200/80 font-semibold">창호문이 열린 뒤 5초 후 자동으로 메인 페이지로 이동합니다</span>
+      </div>
+    </div>
+
+    <button id="btnSkipIntro" onclick="closeIntro()"
+      class="absolute bottom-6 right-6 z-30 px-4 py-2 rounded-full bg-black/50 hover:bg-black/70 text-white text-xs font-bold border border-white/30 backdrop-blur">
+      Skip Intro ➔
+    </button>
+  </div>
+
+  <!-- 2. 상단 글로벌 헤더 & 7대 메뉴 & 동적 다국어 스위처 -->
+  <header class="sticky top-0 z-40 bg-[#0f2544] text-white shadow-lg border-b-2 border-[#d4af37]/60">
+    <div class="max-w-7xl mx-auto px-4">
+      <div class="flex items-center justify-between h-16 gap-3">
+        <!-- 브랜드 로고 -->
+        <div class="flex items-center gap-2.5 cursor-pointer shrink-0" onclick="navigateMenu('attractions')">
+          <div
+            class="w-9 h-9 rounded-lg bg-gradient-to-br from-teal-500 to-amber-400 flex items-center justify-center font-black text-slate-900 shadow">
+            K</div>
+          <div>
+            <div id="uiBrandName" class="font-black text-base tracking-tight leading-none">K-Royal Tour</div>
+            <div id="uiBrandSub" class="text-[10px] text-amber-300 mt-0.5">Korea Premium Inbound</div>
+          </div>
+        </div>
+
+        <!-- 7대 글로벌 표준 메뉴 -->
+        <nav class="hidden lg:flex items-center gap-1 text-xs font-bold" id="mainNavDesktop">
+          <button onclick="navigateMenu('attractions')" data-menu="attractions"
+            class="nav-tab px-3 py-2 rounded-lg hover:bg-white/10 transition whitespace-nowrap">지역별상품예약</button>
+          <button onclick="navigateMenu('regional')" data-menu="regional"
+            class="nav-tab px-3 py-2 rounded-lg hover:bg-white/10 transition whitespace-nowrap">지역별관광정보</button>
+          <button onclick="navigateMenu('limousine')" data-menu="limousine"
+            class="nav-tab px-3 py-2 rounded-lg hover:bg-white/10 transition whitespace-nowrap">리무진버스</button>
+          <button onclick="navigateMenu('airport')" data-menu="airport"
+            class="nav-tab px-3 py-2 rounded-lg hover:bg-white/10 transition whitespace-nowrap">공항 픽업</button>
+          <button onclick="navigateMenu('inquiry')" data-menu="inquiry"
+            class="nav-tab px-3 py-2 rounded-lg hover:bg-white/10 transition whitespace-nowrap">여행문의</button>
+          <button onclick="navigateMenu('faq')" data-menu="faq"
+            class="nav-tab px-3 py-2 rounded-lg hover:bg-white/10 transition whitespace-nowrap">FAQ</button>
+          <button onclick="navigateMenu('etc')" data-menu="etc"
+            class="nav-tab px-3 py-2 rounded-lg hover:bg-white/10 transition whitespace-nowrap">회사소개</button>
+        </nav>
+
+        <!-- 우측 언어 스위처 & 관리자/모바일 바로가기 -->
+        <div class="flex items-center gap-2 shrink-0">
+          <button onclick="replayIntro()" id="btnReplayIntro"
+            class="hidden sm:inline-flex px-2.5 py-1.5 rounded-md bg-white/10 hover:bg-white/20 text-[11px] font-semibold border border-white/20 whitespace-nowrap">
+            🏮 인트로 다시보기
+          </button>
+          <select id="langSwitcher" onchange="changeLocale(this.value)"
+            class="bg-slate-800 text-white text-xs font-bold px-2.5 py-1.5 rounded-md border border-amber-400/50 cursor-pointer"></select>
+          <a href="admin.html" id="linkAdmin"
+            class="px-2.5 py-1.5 rounded-md bg-teal-600 hover:bg-teal-500 text-[11px] font-bold whitespace-nowrap">Admin</a>
+          <a href="m-expense.html" id="linkMobileExp"
+            class="hidden md:inline-flex px-2.5 py-1.5 rounded-md bg-orange-500 hover:bg-orange-400 text-[11px] font-bold whitespace-nowrap">/m/expense</a>
+        </div>
+      </div>
+
+      <!-- 모바일 전용 가로 스크롤 7대 메뉴 -->
+      <div class="lg:hidden flex items-center gap-1.5 overflow-x-auto pb-2.5 text-xs font-bold">
+        <button onclick="navigateMenu('attractions')" data-menu="attractions"
+          class="nav-tab px-2.5 py-1.5 rounded bg-white/10 whitespace-nowrap">지역별상품예약</button>
+        <button onclick="navigateMenu('regional')" data-menu="regional"
+          class="nav-tab px-2.5 py-1.5 rounded bg-white/10 whitespace-nowrap">지역별관광정보</button>
+        <button onclick="navigateMenu('limousine')" data-menu="limousine"
+          class="nav-tab px-2.5 py-1.5 rounded bg-white/10 whitespace-nowrap">리무진버스</button>
+        <button onclick="navigateMenu('airport')" data-menu="airport"
+          class="nav-tab px-2.5 py-1.5 rounded bg-white/10 whitespace-nowrap">공항 픽업</button>
+        <button onclick="navigateMenu('inquiry')" data-menu="inquiry"
+          class="nav-tab px-2.5 py-1.5 rounded bg-white/10 whitespace-nowrap">여행문의</button>
+        <button onclick="navigateMenu('faq')" data-menu="faq"
+          class="nav-tab px-2.5 py-1.5 rounded bg-white/10 whitespace-nowrap">FAQ</button>
+        <button onclick="navigateMenu('etc')" data-menu="etc"
+          class="nav-tab px-2.5 py-1.5 rounded bg-white/10 whitespace-nowrap">회사소개</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- 히어로 배너 (멀티 공항 & 한옥 단청 포인트) -->
+  <section
+    class="bg-gradient-to-r from-[#0f2544] via-[#163a5f] to-[#0d9488] text-white py-8 border-b-4 border-[#d4af37]">
+    <div class="max-w-7xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-6">
+      <div class="max-w-2xl">
+        <div class="flex flex-wrap gap-2 mb-3">
+          <span
+            class="px-3 py-1 rounded-full bg-amber-400/20 border border-amber-300/40 text-amber-200 text-xs font-bold">✈️
+            ICN 인천공항 & PUS 김해(부산)공항 멀티 입·출국</span>
+          <span class="px-3 py-1 rounded-full bg-teal-400/20 border border-teal-300/40 text-teal-100 text-xs font-bold"
+            id="currencyBadge">통화: KRW / USD 자동 전환</span>
+        </div>
+        <h2 id="uiHeroTitle" class="serif-kr text-2xl md:text-3xl font-black leading-snug mb-2">인천 · 김해 멀티 공항 완벽 대응! 맞춤형
+          대한민국 프리미엄 투어</h2>
+        <p id="uiHeroDesc" class="text-slate-200 text-sm leading-relaxed mb-4"></p>
+        <div class="flex flex-wrap gap-2.5">
+          <button onclick="navigateMenu('regional')" id="btnHeroPackage"
+            class="px-5 py-2.5 rounded-lg bg-orange-500 hover:bg-orange-400 text-white font-bold text-sm shadow-lg transition">지역별
+            패키지 예약하기</button>
+          <button onclick="navigateMenu('limousine')" id="btnHeroBus"
+            class="px-5 py-2.5 rounded-lg bg-white/15 hover:bg-white/25 text-white font-bold text-sm border border-white/30 transition">리무진
+            좌석 예매</button>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-2.5 text-center shrink-0 w-full md:w-auto">
+        <div class="bg-white/10 backdrop-blur rounded-xl p-3 border border-white/20">
+          <div class="text-xl font-black text-amber-300">ICN ↔ PUS</div>
+          <div class="text-[11px] text-slate-200">오픈조 입출국 지원</div>
+        </div>
+        <div class="bg-white/10 backdrop-blur rounded-xl p-3 border border-white/20">
+          <div class="text-xl font-black text-teal-300">10 Coaches</div>
+          <div class="text-[11px] text-slate-200">전용 리무진 좌석 지정</div>
+        </div>
+        <div class="bg-white/10 backdrop-blur rounded-xl p-3 border border-white/20">
+          <div class="text-xl font-black text-orange-300">2D~4D</div>
+          <div class="text-[11px] text-slate-200">1박2일~3박4일 빌더</div>
+        </div>
+        <div class="bg-white/10 backdrop-blur rounded-xl p-3 border border-white/20">
+          <div class="text-xl font-black text-sky-300">9 Languages</div>
+          <div class="text-[11px] text-slate-200">실시간 양방향 자동번역</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 메인 콘텐츠 섹션 -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 py-8">
+
+    <!-- [메뉴 1] 관광지 -->
+    <section id="sec-attractions" class="menu-section">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+        <div>
+          <h3 id="uiAttTitle" class="serif-kr text-2xl font-black text-[#0f2544]">🏯 대한민국 대표 관광지 · 테마파크 · 맛집 허브</h3>
+          <p id="uiAttDesc" class="text-sm text-slate-600 mt-1">서울, 부산, 안동, 여수, 광주, 한국민속촌, DMZ의 핵심 명소와 입장권 예매 정보를 확인하세요.</p>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <select id="attRegionFilter" onchange="renderAttractions()"
+            class="px-3 py-2 rounded-lg border border-slate-300 bg-white text-sm font-bold">
+            <option value="ALL">전체 거점 (All Regions)</option>
+            <option value="서울">서울 (Seoul)</option>
+            <option value="부산">부산 (Busan)</option>
+            <option value="안동">안동 (Andong)</option>
+            <option value="여수">여수 (Yeosu)</option>
+            <option value="광주">광주 (Gwangju)</option>
+            <option value="한국민속촌">한국민속촌 (Folk Village)</option>
+            <option value="DMZ">DMZ</option>
+            <option value="제주">제주 (Jeju)</option>
+            <option value="전주">전주 (Jeonju)</option>
+          </select>
+          <select id="attCatFilter" onchange="renderAttractions()"
+            class="px-3 py-2 rounded-lg border border-slate-300 bg-white text-sm font-bold">
+            <option value="ALL">전체 카테고리</option>
+            <option value="명소/입장권">명소 · 입장권</option>
+            <option value="테마파크/놀거리">테마파크 · 놀거리</option>
+            <option value="특색거리/전통시장">특색거리 · 전통시장</option>
+            <option value="맛집/술집·나이트라이프">맛집 · 술집/나이트라이프</option>
+          </select>
+        </div>
+      </div>
+      <div id="attractionsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"></div>
+    </section>
+
+    <!-- [메뉴 2] 지역별관광정보 (4단계 패키지 빌더) -->
+    <section id="sec-regional" class="menu-section hidden">
+      <div class="mb-6">
+        <h3 id="uiRegTitle" class="serif-kr text-2xl font-black text-[#0f2544]">🗺️ 지역별 대표 여행 패키지 상품 구성 빌더</h3>
+        <p id="uiRegDesc" class="text-sm text-slate-600 mt-1">지역 선택 ➔ 기간(1박2일·2박3일·3박4일) ➔ 대표 숙박업체 ➔ 교통(리무진 좌석·KTX·렌터카) ➔ 공항 픽업까지 한 번에
+          견적을 내고 예약하세요.</p>
+      </div>
+
+      <!-- 지역 선택 탭 -->
+      <div id="regionTabs" class="flex flex-wrap gap-2 mb-5"></div>
+
+      <!-- 선택 지역 대표 상품 이미지 배너 -->
+      <div id="pkgHeroBanner" class="mb-6"></div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- 좌측 4단계 빌더 -->
+        <div class="lg:col-span-2 space-y-6">
+          <!-- Step 1: 기간 선택 -->
+          <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
+            <h4 id="uiStep1Title" class="font-black text-base text-[#0f2544] mb-3">1단계. 여행 기간 선택</h4>
+            <div class="grid grid-cols-3 gap-3 mb-4">
+              <button onclick="selectPkgDuration('2D1N')" data-dur="2D1N"
+                class="dur-btn py-2.5 px-3 rounded-xl border-2 font-bold text-sm transition">1박 2일 (2D1N)</button>
+              <button onclick="selectPkgDuration('3D2N')" data-dur="3D2N"
+                class="dur-btn py-2.5 px-3 rounded-xl border-2 font-bold text-sm transition">2박 3일 (3D2N)</button>
+              <button onclick="selectPkgDuration('4D3N')" data-dur="4D3N"
+                class="dur-btn py-2.5 px-3 rounded-xl border-2 font-bold text-sm transition">3박 4일 (4D3N)</button>
+            </div>
+            <div class="bg-slate-50 rounded-xl p-3.5 border border-slate-200">
+              <div class="text-xs font-bold text-teal-700 mb-2">📅 선택한 기간 표준 관광 일정표</div>
+              <ul id="pkgItineraryList" class="text-xs text-slate-700 space-y-1.5"></ul>
+            </div>
+          </div>
+
+          <!-- Step 2: 기간별 대표 숙박업체 선택 -->
+          <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
+            <div class="flex items-center justify-between mb-3">
+              <h4 id="uiStep2Title" class="font-black text-base text-[#0f2544]">2단계. 기간별 대표 숙박업체 선택</h4>
+              <div class="flex items-center gap-2 text-xs font-bold">
+                <span>객실 수:</span>
+                <select id="pkgRooms" onchange="updatePkgQuote()" class="border rounded px-2 py-1">
+                  <option value="1">1실</option>
+                  <option value="2">2실</option>
+                  <option value="3">3실</option>
+                </select>
+              </div>
+            </div>
+            <div id="pkgHotelsList" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+          </div>
+
+          <!-- Step 3: 이동 교통수단 선택 (리무진 · KTX · 렌터카) -->
+          <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
+            <h4 id="uiStep3Title" class="font-black text-base text-[#0f2544] mb-3">3단계. 이동 간 교통수단 선택 (리무진 · KTX · 렌터카)
+            </h4>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
+              <label class="cursor-pointer border-2 rounded-xl p-3 flex items-start gap-2.5 hover:border-teal-500">
+                <input type="radio" name="pkgTransport" value="limousine" checked onchange="onPkgTransportChange()"
+                  class="mt-1">
+                <div>
+                  <div class="font-bold text-sm">🚌 전용 리무진 버스</div>
+                  <div class="text-[11px] text-slate-500">비행기 좌석식 지정 예매</div>
+                </div>
+              </label>
+              <label class="cursor-pointer border-2 rounded-xl p-3 flex items-start gap-2.5 hover:border-teal-500">
+                <input type="radio" name="pkgTransport" value="ktx" onchange="onPkgTransportChange()" class="mt-1">
+                <div>
+                  <div class="font-bold text-sm">🚄 KTX 고속열차</div>
+                  <div class="text-[11px] text-slate-500">서울↔부산/광주/여수</div>
+                </div>
+              </label>
+              <label class="cursor-pointer border-2 rounded-xl p-3 flex items-start gap-2.5 hover:border-teal-500">
+                <input type="radio" name="pkgTransport" value="rental" onchange="onPkgTransportChange()" class="mt-1">
+                <div>
+                  <div class="font-bold text-sm">🚗 렌터카 예약</div>
+                  <div class="text-[11px] text-slate-500">세단·SUV·9인승 미니밴</div>
+                </div>
+              </label>
+            </div>
+
+            <!-- 교통수단 상세 패널 -->
+            <div id="pkgLimousineBox"
+              class="p-3.5 rounded-xl bg-teal-50 border border-teal-200 flex items-center justify-between gap-3">
+              <div class="text-xs">
+                <div class="font-bold text-teal-900">전용 리무진 버스 좌석 연결</div>
+                <div id="pkgLimousineSelectedInfo" class="text-teal-700 mt-0.5">선택된 좌석 없음 (아래 버튼으로 좌석을 지정하거나 자동 배정)
+                </div>
+              </div>
+              <button onclick="navigateMenu('limousine')"
+                class="px-3 py-2 rounded-lg bg-teal-600 text-white text-xs font-bold whitespace-nowrap">좌석 평면도 열기
+                ➔</button>
+            </div>
+
+            <div id="pkgKtxBox"
+              class="hidden p-3.5 rounded-xl bg-sky-50 border border-sky-200 grid grid-cols-2 gap-3 text-xs">
+              <div>
+                <label class="font-bold block mb-1">KTX 구간</label>
+                <select id="ktxRoute" onchange="updatePkgQuote()" class="w-full border rounded px-2 py-1.5 bg-white">
+                  <option value="59800">서울역 ↔ 부산역 (₩59,800/인)</option>
+                  <option value="46800">용산역 ↔ 광주송정역 (₩46,800/인)</option>
+                  <option value="44600">용산역 ↔ 여수엑스포역 (₩44,600/인)</option>
+                </select>
+              </div>
+              <div>
+                <label class="font-bold block mb-1">열차 등급</label>
+                <select id="ktxClass" onchange="updatePkgQuote()" class="w-full border rounded px-2 py-1.5 bg-white">
+                  <option value="1">일반실 (Standard)</option>
+                  <option value="1.4">특실 (First Class +40%)</option>
+                </select>
+              </div>
+            </div>
+
+            <div id="pkgRentalBox"
+              class="hidden p-3.5 rounded-xl bg-orange-50 border border-orange-200 space-y-3 text-xs">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                  <label class="font-bold block mb-1">렌터카 차종 선택</label>
+                  <select id="rentalCarSelect" onchange="updatePkgQuote()"
+                    class="w-full border rounded px-2 py-1.5 bg-white"></select>
+                </div>
+                <div>
+                  <label class="font-bold block mb-1">인수·반납 지점</label>
+                  <select id="rentalBranchSelect" class="w-full border rounded px-2 py-1.5 bg-white">
+                    <option>인천국제공항 (ICN)</option>
+                    <option>김해국제공항 (PUS)</option>
+                    <option>서울역 KTX 데스크</option>
+                    <option>부산역 KTX 데스크</option>
+                    <option>숙박 호텔 딜리버리</option>
+                  </select>
+                </div>
+              </div>
+              <div class="flex flex-wrap items-center justify-between gap-2">
+                <label class="flex items-center gap-1.5 font-bold cursor-pointer">
+                  <input type="checkbox" id="rentalSuperCdw" checked onchange="updatePkgQuote()"> 완전자차 보험 (Super CDW) 포함
+                </label>
+                <span class="text-orange-700 font-semibold">⚠️ 외국인 운전자: 여권 + 국제운전면허증(IDP) 실물 지참 필수</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 4: 입·출국 공항 & 예약자 정보 -->
+          <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
+            <h4 id="uiStep4Title" class="font-black text-base text-[#0f2544] mb-3">4단계. 입·출국 공항 & 공항 픽업 · 예약자 정보</h4>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs mb-3">
+              <div>
+                <label class="font-bold block mb-1">입·출국 공항 동선</label>
+                <select id="pkgAirportRoute" onchange="updatePkgQuote()"
+                  class="w-full border rounded-lg px-2.5 py-2 bg-white">
+                  <option value="ICN 왕복">인천공항(ICN) 입국 ➔ 인천공항(ICN) 출국</option>
+                  <option value="PUS 왕복">김해/부산공항(PUS) 입국 ➔ 김해공항(PUS) 출국</option>
+                  <option value="ICN ➔ PUS 오픈조">인천공항(ICN) 입국 ➔ 김해/부산공항(PUS) 출국</option>
+                  <option value="PUS ➔ ICN 오픈조">김해공항(PUS) 입국 ➔ 인천공항(ICN) 출국</option>
+                </select>
+              </div>
+              <div>
+                <label class="font-bold block mb-1">공항 프라이빗 픽업/샌딩 추가</label>
+                <select id="pkgAirportPickup" onchange="updatePkgQuote()"
+                  class="w-full border rounded-lg px-2.5 py-2 bg-white">
+                  <option value="0">픽업 추가 안함</option>
+                  <option value="110000">인천공항 ↔ 서울 호텔 세단 (+₩110,000)</option>
+                  <option value="165000">인천공항 ↔ 서울 호텔 대형밴 (+₩165,000)</option>
+                  <option value="65000">김해공항 ↔ 부산 호텔 세단 (+₩65,000)</option>
+                  <option value="95000">김해공항 ↔ 부산 호텔 9인승 (+₩95,000)</option>
+                </select>
+              </div>
+              <div>
+                <label class="font-bold block mb-1">여행 시작일</label>
+                <input type="date" id="pkgStartDate" class="w-full border rounded-lg px-2.5 py-2">
+              </div>
+              <div>
+                <label class="font-bold block mb-1">총 인원 수 (자동 합산)</label>
+                <input type="number" id="pkgPax" value="2" min="1" max="40" readonly
+                  class="w-full border rounded-lg px-2.5 py-2 bg-slate-100 font-black text-[#0f2544]">
+              </div>
+              <div class="md:col-span-2 bg-slate-50 rounded-xl p-3 border border-slate-200">
+                <label class="font-bold block mb-2 text-[#0f2544]">👥 탑승·투어 인원 상세 구분 (성인/소인 & 남성/여성) *</label>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                  <div>
+                    <label class="text-[11px] font-bold text-slate-600 block mb-1">성인 (Adult)</label>
+                    <input type="number" id="pkgAdults" value="2" min="0" max="40" onchange="syncPkgPaxCounts()"
+                      class="w-full border rounded-lg px-2.5 py-1.5 bg-white font-bold">
+                  </div>
+                  <div>
+                    <label class="text-[11px] font-bold text-slate-600 block mb-1">소인 (Child, 30%↓)</label>
+                    <input type="number" id="pkgChildren" value="0" min="0" max="40" onchange="syncPkgPaxCounts()"
+                      class="w-full border rounded-lg px-2.5 py-1.5 bg-white font-bold">
+                  </div>
+                  <div>
+                    <label class="text-[11px] font-bold text-sky-700 block mb-1">남성 (Male)</label>
+                    <input type="number" id="pkgMale" value="1" min="0" max="40" onchange="updatePkgQuote()"
+                      class="w-full border rounded-lg px-2.5 py-1.5 bg-white font-bold">
+                  </div>
+                  <div>
+                    <label class="text-[11px] font-bold text-rose-700 block mb-1">여성 (Female)</label>
+                    <input type="number" id="pkgFemale" value="1" min="0" max="40" onchange="updatePkgQuote()"
+                      class="w-full border rounded-lg px-2.5 py-1.5 bg-white font-bold">
+                  </div>
+                </div>
+              </div>
+              <div>
+                <label class="font-bold block mb-1">대표 예약자 성명 *</label>
+                <input type="text" id="pkgCustName" placeholder="예: John Smith / Nguyen Van Minh"
+                  class="w-full border rounded-lg px-2.5 py-2">
+              </div>
+              <div>
+                <label class="font-bold block mb-1">이메일 주소 (예약 확정서 수신) *</label>
+                <input type="email" id="pkgCustEmail" placeholder="example@email.com"
+                  class="w-full border rounded-lg px-2.5 py-2">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 우측 실시간 합산 견적 영수증 -->
+        <div>
+          <div class="bg-[#0f2544] text-white rounded-2xl p-5 shadow-xl sticky top-24 border-2 border-[#d4af37]/50">
+            <div class="text-xs text-amber-300 font-bold mb-1">REAL-TIME PACKAGE QUOTE</div>
+            <h4 class="text-lg font-black mb-4 border-b border-white/15 pb-3">🧾 실시간 패키지 견적 요약</h4>
+            <div id="pkgReceiptLines" class="space-y-2.5 text-xs text-slate-200 mb-4"></div>
+            <div class="border-t border-white/20 pt-3 mb-4">
+              <div class="text-xs text-slate-300">총 예상 결제 금액</div>
+              <div id="pkgTotalPrice" class="text-2xl font-black text-amber-300 mt-0.5">₩0</div>
+            </div>
+            <button onclick="submitPackageReservation()" id="btnConfirmPkg"
+              class="w-full py-3 rounded-xl bg-orange-500 hover:bg-orange-400 text-white font-black text-sm shadow-lg transition">
+              실시간 견적 확정 & 예약하기
+            </button>
+            <p class="text-[11px] text-slate-300 text-center mt-2.5">예약 확정 시 고유 행사 코드 발급 및 담당 직원 이메일로 즉시 알림이 발송됩니다.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- [메뉴 3] 리무진버스 (항공사 좌석 지정 스타일 버스 전체 평면도 UI) -->
+    <section id="sec-limousine" class="menu-section hidden">
+      <div class="mb-6">
+        <h3 class="serif-kr text-2xl font-black text-[#0f2544]">🚌 전용 리무진 버스 좌석 예매 (항공사 스타일 전체 평면도)</h3>
+        <p class="text-sm text-slate-600 mt-1">1호차~10호차 중 배정된 고급 리무진(28인승 우등 / 21인승 프리미엄)의 창측·내측·1인 독립석을 직관적으로 선택해
+          예매하세요.</p>
+      </div>
+
+      <!-- 리무진 차량 이미지 및 차종 사양 안내 -->
+      <div
+        class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200 mb-6 grid grid-cols-1 lg:grid-cols-12 gap-5 items-center">
+        <div class="lg:col-span-5">
+          <img src="assets/images/limousine_bus.jpg" alt="K-Royal 전용 럭셔리 리무진 버스"
+            class="w-full h-56 object-cover rounded-xl shadow-sm border border-slate-200">
+        </div>
+        <div class="lg:col-span-7 space-y-3">
+          <div class="inline-block px-3 py-1 rounded-full bg-amber-100 text-amber-900 text-xs font-black">K-ROYAL LUXURY
+            FLEET (1호차 ~ 10호차 직영)</div>
+          <h4 class="serif-kr text-xl font-black text-[#0f2544]">현대 유니버스 노블 / 기아 그랜버드 실크로드 전용 리무진</h4>
+          <p class="text-xs text-slate-600 leading-relaxed">장거리 이동 시에도 피로감이 없도록 전 차량 항공기 비즈니스 클래스 수준의 리클라이닝 시트, 개별 USB-C
+            고속 충전, 초고속 무료 5G Wi-Fi, 생수 및 다국어 가이드 모니터를 기본 제공합니다.</p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+            <div class="bg-slate-50 rounded-xl p-3 border border-slate-200">
+              <div class="font-black text-xs text-[#0f2544]">🛋️ 28인승 우등 리무진 (2+1 배열)</div>
+              <div class="text-[11px] text-slate-600 mt-1">넓은 레그룸(145도 리클라이닝), 독립 1인 창측석(Solo) 및 동반자 2인석 완비</div>
+            </div>
+            <div class="bg-amber-50 rounded-xl p-3 border border-amber-200">
+              <div class="font-black text-xs text-amber-900">👑 21인승 프리미엄 골드 (1+1+1 / 2+1)</div>
+              <div class="text-[11px] text-amber-800 mt-1">165도 침대형 전동 시트, 개인 커튼·모니터·무선 충전, VIP 전담 호차</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- 좌측: 1단계 노선/날짜 + 2단계 배정 버스 선택 -->
+        <div class="lg:col-span-5 space-y-5">
+          <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
+            <h4 id="uiBusStep1" class="font-black text-sm text-[#0f2544] mb-3">1단계. 노선 및 날짜 선택</h4>
+            <div class="grid grid-cols-2 gap-3 text-xs">
+              <div>
+                <label class="font-bold block mb-1">이동 노선</label>
+                <select id="busRouteSelect" onchange="renderBusDispatches()"
+                  class="w-full border rounded-lg px-2.5 py-2 bg-white font-bold">
+                  <option value="서울 ➔ 부산">서울 ➔ 부산</option>
+                  <option value="부산 ➔ 서울">부산 ➔ 서울</option>
+                  <option value="서울 ➔ 광주">서울 ➔ 광주</option>
+                  <option value="서울 ➔ 안동">서울 ➔ 안동</option>
+                  <option value="서울 ➔ 여수">서울 ➔ 여수</option>
+                </select>
+              </div>
+              <div>
+                <label class="font-bold block mb-1">탑승 날짜</label>
+                <input type="date" id="busDateInput" onchange="renderBusDispatches()"
+                  class="w-full border rounded-lg px-2.5 py-2 font-bold">
+              </div>
+            </div>
+            <div id="busDateAvailabilityBadge" class="mt-3 text-xs font-bold"></div>
+          </div>
+
+          <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
+            <h4 id="uiBusStep2" class="font-black text-sm text-[#0f2544] mb-3">2단계. 배정된 전용 리무진 호차 선택</h4>
+            <div id="busDispatchList" class="space-y-2.5"></div>
+          </div>
+
+          <!-- 예매자 정보 & 확정 -->
+          <div class="bg-[#0f2544] text-white rounded-2xl p-5 shadow-lg">
+            <h4 class="font-black text-sm text-amber-300 mb-3">🎫 선택한 좌석 예매 확정</h4>
+            <div id="selectedBusSummary" class="text-xs text-slate-200 mb-3 bg-white/10 rounded-lg p-3">배정 버스와 좌석을 선택해
+              주세요.</div>
+            <div class="grid grid-cols-2 gap-2 mb-2 text-xs text-slate-900">
+              <input type="text" id="busCustName" placeholder="탑승자 성명 *" class="rounded-lg px-2.5 py-2 bg-white">
+              <input type="email" id="busCustEmail" placeholder="이메일 *" class="rounded-lg px-2.5 py-2 bg-white">
+            </div>
+            <div class="grid grid-cols-4 gap-1.5 mb-3 text-[11px] text-slate-900">
+              <div class="bg-white/95 rounded-lg p-1.5">
+                <label class="font-bold text-slate-600 block text-[10px]">성인</label>
+                <input type="number" id="busAdults" value="1" min="0" max="40" class="w-full font-bold outline-none">
+              </div>
+              <div class="bg-white/95 rounded-lg p-1.5">
+                <label class="font-bold text-slate-600 block text-[10px]">소인</label>
+                <input type="number" id="busChildren" value="0" min="0" max="40" class="w-full font-bold outline-none">
+              </div>
+              <div class="bg-white/95 rounded-lg p-1.5">
+                <label class="font-bold text-sky-700 block text-[10px]">남성</label>
+                <input type="number" id="busMale" value="1" min="0" max="40" class="w-full font-bold outline-none">
+              </div>
+              <div class="bg-white/95 rounded-lg p-1.5">
+                <label class="font-bold text-rose-700 block text-[10px]">여성</label>
+                <input type="number" id="busFemale" value="0" min="0" max="40" class="w-full font-bold outline-none">
+              </div>
+            </div>
+            <button onclick="submitBusReservation()"
+              class="w-full py-2.5 rounded-xl bg-teal-500 hover:bg-teal-400 text-white font-black text-sm transition">
+              리무진 좌석 예매 완료하기
+            </button>
+          </div>
+        </div>
+
+        <!-- 우측: 3단계 항공사 스타일 버스 전체 평면도 -->
+        <div class="lg:col-span-7 bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+            <h4 id="uiBusStep3" class="font-black text-sm text-[#0f2544]">3단계. 항공사 스타일 버스 전체 평면도 좌석 선택</h4>
+            <button onclick="autoAssignAdjacentSeats()"
+              class="px-3 py-1.5 rounded-lg bg-amber-100 hover:bg-amber-200 text-amber-900 text-xs font-bold border border-amber-300">
+              ✨ 동반객 연속 좌석 자동 추천 (2석)
+            </button>
+          </div>
+
+          <!-- 속성 빠른 필터 칩 -->
+          <div class="flex flex-wrap gap-1.5 mb-4 text-[11px] font-bold">
+            <button onclick="setSeatFilter('all', this)"
+              class="seat-filter-btn px-3 py-1 rounded-full bg-[#0f2544] text-white">전체 보기 (All)</button>
+            <button onclick="setSeatFilter('window', this)"
+              class="seat-filter-btn px-3 py-1 rounded-full bg-slate-100 hover:bg-slate-200">🪟 창측 좌석 (Window)</button>
+            <button onclick="setSeatFilter('aisle', this)"
+              class="seat-filter-btn px-3 py-1 rounded-full bg-slate-100 hover:bg-slate-200">🚶 내측/통로측 (Aisle)</button>
+            <button onclick="setSeatFilter('solo', this)"
+              class="seat-filter-btn px-3 py-1 rounded-full bg-slate-100 hover:bg-slate-200">⭐ 1인 독립 창측 (Solo)</button>
+            <button onclick="setSeatFilter('front', this)"
+              class="seat-filter-btn px-3 py-1 rounded-full bg-slate-100 hover:bg-slate-200">🚀 전방 선호 구역
+              (Front)</button>
+          </div>
+
+          <!-- 상태 범례 -->
+          <div class="flex flex-wrap gap-3 text-[11px] text-slate-600 mb-4">
+            <span class="flex items-center gap-1"><span
+                class="w-3.5 h-3.5 rounded bg-white border-2 border-slate-300 inline-block"></span> 선택 가능</span>
+            <span class="flex items-center gap-1"><span class="w-3.5 h-3.5 rounded bg-teal-600 inline-block"></span> 내
+              선택</span>
+            <span class="flex items-center gap-1"><span class="w-3.5 h-3.5 rounded bg-slate-300 inline-block"></span> 예약
+              완료(X)</span>
+            <span class="flex items-center gap-1"><span
+                class="w-3.5 h-3.5 rounded bg-amber-200 border border-amber-500 inline-block"></span> 가이드/VIP 잠금</span>
+          </div>
+
+          <!-- 버스 동체 전체 평면도 -->
+          <div id="busCabinMapContainer" class="bus-cabin-shell p-5 max-w-md mx-auto"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- [메뉴 4] 공항 픽업 -->
+    <section id="sec-airport" class="menu-section hidden">
+      <div class="mb-6">
+        <h3 class="serif-kr text-2xl font-black text-[#0f2544]">✈️ 인천(ICN) & 김해(PUS) 공항 프라이빗 픽업 · 샌딩</h3>
+        <p class="text-sm text-slate-600 mt-1">정찰제 투명 요금과 검증된 다국어 전담 운전기사(Chauffeur)가 입국장에서 안전하게 모십니다.</p>
+      </div>
+
+      <!-- 공항 픽업 차량 이미지 및 차종 라인업 안내 -->
+      <div
+        class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200 mb-6 grid grid-cols-1 lg:grid-cols-12 gap-5 items-center">
+        <div class="lg:col-span-5">
+          <img src="assets/images/airport_pickup.jpg" alt="K-Royal 공항 VIP 픽업 전용 차량"
+            class="w-full h-56 object-cover rounded-xl shadow-sm border border-slate-200">
+        </div>
+        <div class="lg:col-span-7 space-y-3">
+          <div class="inline-block px-3 py-1 rounded-full bg-teal-100 text-teal-900 text-xs font-black">PRIVATE
+            CHAUFFEUR SERVICE (피켓 미팅 포함)</div>
+          <h4 class="serif-kr text-xl font-black text-[#0f2544]">입국장 1:1 피켓 미팅 & 수하물 맞춤형 프라이빗 픽업 차량 라인업</h4>
+          <p class="text-xs text-slate-600 leading-relaxed">항공편 실시간 지연 추적 시스템으로 연착 시에도 추가 대기 요금 없이 안전하게 모십니다. 여행 인원과 캐리어
+            수량에 맞춰 최적의 차량을 선택하세요.</p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+            <div class="bg-slate-50 rounded-xl p-3 border border-slate-200">
+              <div class="font-black text-xs text-[#0f2544]">🚘 이그제큐티브 세단 (제네시스 G80 / 그랜저)</div>
+              <div class="text-[11px] text-slate-600 mt-1">탑승 최대 3인 · 캐리어 3개 | 비즈니스·커플 VIP 이동 최적화</div>
+            </div>
+            <div class="bg-teal-50 rounded-xl p-3 border border-teal-200">
+              <div class="font-black text-xs text-teal-900">🚐 대형 럭셔리 밴 (카니발 하이리무진 / 벤츠 스프린터)</div>
+              <div class="text-[11px] text-teal-800 mt-1">탑승 최대 6~9인 · 캐리어 8개 | 가족·단체·골프백 수송 최적화</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="flex gap-2 mb-5">
+        <button onclick="renderAirportTransfers('ICN')" id="btnAirportICN"
+          class="px-4 py-2 rounded-xl bg-[#0f2544] text-white font-bold text-sm">인천국제공항 (ICN ↔ 서울)</button>
+        <button onclick="renderAirportTransfers('PUS')" id="btnAirportPUS"
+          class="px-4 py-2 rounded-xl bg-white border border-slate-300 font-bold text-sm">김해국제공항 (PUS ↔ 부산)</button>
+      </div>
+      <div id="airportCardsGrid" class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6"></div>
+
+      <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200 max-w-2xl">
+        <h4 class="font-black text-base text-[#0f2544] mb-3">🚘 공항 픽업 단독 예약</h4>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+          <div>
+            <label class="font-bold block mb-1">선택 차량</label>
+            <select id="atVehicleSelect" class="w-full border rounded-lg px-2.5 py-2 bg-white"></select>
+          </div>
+          <div>
+            <label class="font-bold block mb-1">도착 항공편명 & 날짜</label>
+            <input type="text" id="atFlightInfo" placeholder="예: KE082 / 2026-12-24 14:30"
+              class="w-full border rounded-lg px-2.5 py-2">
+          </div>
+          <div>
+            <label class="font-bold block mb-1">예약자 성명 *</label>
+            <input type="text" id="atCustName" placeholder="Passport Name" class="w-full border rounded-lg px-2.5 py-2">
+          </div>
+          <div>
+            <label class="font-bold block mb-1">이메일 *</label>
+            <input type="email" id="atCustEmail" placeholder="example@email.com"
+              class="w-full border rounded-lg px-2.5 py-2">
+          </div>
+          <div class="md:col-span-2 bg-slate-50 rounded-xl p-3 border border-slate-200">
+            <label class="font-bold block mb-2 text-[#0f2544]">👥 탑승 인원 구분 (성인/소인 & 남성/여성)</label>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              <div>
+                <label class="text-[11px] font-bold text-slate-600 block mb-1">성인 (Adult)</label>
+                <input type="number" id="atAdults" value="2" min="0" max="20" class="w-full border rounded-lg px-2 py-1.5 bg-white font-bold">
+              </div>
+              <div>
+                <label class="text-[11px] font-bold text-slate-600 block mb-1">소인 (Child)</label>
+                <input type="number" id="atChildren" value="0" min="0" max="20" class="w-full border rounded-lg px-2 py-1.5 bg-white font-bold">
+              </div>
+              <div>
+                <label class="text-[11px] font-bold text-sky-700 block mb-1">남성 (Male)</label>
+                <input type="number" id="atMale" value="1" min="0" max="20" class="w-full border rounded-lg px-2 py-1.5 bg-white font-bold">
+              </div>
+              <div>
+                <label class="text-[11px] font-bold text-rose-700 block mb-1">여성 (Female)</label>
+                <input type="number" id="atFemale" value="1" min="0" max="20" class="w-full border rounded-lg px-2 py-1.5 bg-white font-bold">
+              </div>
+            </div>
+          </div>
+        </div>
+        <button onclick="submitAirportReservation()"
+          class="mt-4 px-6 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-bold text-sm">공항 픽업 예약 확정 (직원
+          실시간 알림)</button>
+      </div>
+    </section>
+
+    <!-- [메뉴 5] 여행문의 (양방향 자동 번역) -->
+    <section id="sec-inquiry" class="menu-section hidden">
+      <div class="mb-6">
+        <h3 class="serif-kr text-2xl font-black text-[#0f2544]">💬 다국어 자동 번역 여행문의 (맞춤 행사 의뢰 & 1:1 Q&A)</h3>
+        <p class="text-sm text-slate-600 mt-1">현재 선택된 언어로 문의하시면 한국 관리자에게 자동 번역 전달되며, 관리자의 한국어 답변은 고객님의 언어로 자동 번역되어
+          표시됩니다.</p>
+      </div>
+
+      <div class="flex gap-2 mb-5">
+        <button onclick="switchInquiryTab('custom')" id="btnInqTabCustom"
+          class="px-4 py-2 rounded-xl bg-[#0f2544] text-white font-bold text-sm">맞춤 행사 진행 의뢰</button>
+        <button onclick="switchInquiryTab('qna')" id="btnInqTabQna"
+          class="px-4 py-2 rounded-xl bg-white border border-slate-300 font-bold text-sm">1:1 질의 및 답변 (Q&A)</button>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- 좌측: 작성 폼 -->
+        <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
+          <div id="inqFormCustom" class="space-y-3 text-xs">
+            <h4 class="font-black text-base text-[#0f2544]">📋 맞춤 행사 진행 의뢰서</h4>
+            <div class="grid grid-cols-2 gap-2.5">
+              <div><label class="font-bold block mb-1">의뢰자 성명 *</label><input type="text" id="inqCustName"
+                  class="w-full border rounded-lg px-2.5 py-2" placeholder="Name"></div>
+              <div><label class="font-bold block mb-1">이메일 *</label><input type="email" id="inqCustEmail"
+                  class="w-full border rounded-lg px-2.5 py-2" placeholder="Email"></div>
+              <div><label class="font-bold block mb-1">방문 일정 / 기간</label><input type="text" id="inqDates"
+                  class="w-full border rounded-lg px-2.5 py-2" placeholder="예: 12/24 ~ 12/27 (3박4일)"></div>
+              <div><label class="font-bold block mb-1">인원 및 성별 구성</label><input type="text" id="inqPax"
+                  class="w-full border rounded-lg px-2.5 py-2" placeholder="예: 성인 남2 여2, 아동 1"></div>
+              <div><label class="font-bold block mb-1">입·출국 공항</label><input type="text" id="inqAirport"
+                  class="w-full border rounded-lg px-2.5 py-2" value="인천공항(ICN) 입국 / 김해공항(PUS) 출국"></div>
+              <div><label class="font-bold block mb-1">희망 이동수단</label><input type="text" id="inqTransport"
+                  class="w-full border rounded-lg px-2.5 py-2" value="전용 리무진버스 + KTX"></div>
+            </div>
+            <div><label class="font-bold block mb-1">희망 방문 지역 & 여행 목적 (12줄 이상 상세 작성 가능)</label><textarea id="inqRegions"
+                rows="12" class="w-full border rounded-lg px-2.5 py-2 leading-relaxed"
+                placeholder="예: 부산 해운대 · 서울 경복궁 · 안동 하회마을 / 가족 힐링 투어, 한복 체험, 미식 탐방 등 희망하시는 지역과 방문 목적을 12줄 이상으로 여유롭게 작성해 주세요."></textarea>
+            </div>
+            <div><label class="font-bold block mb-1">상세 요청 내용 * (8줄 이상 상세 작성 가능)</label><textarea id="inqDetail"
+                rows="8" class="w-full border rounded-lg px-2.5 py-2 leading-relaxed"
+                placeholder="원하시는 일정, 호텔 등급, 전용 가이드 언어, 식단(할랄/채식/알레르기), 유아 카시트 또는 휠체어 지원 여부 등을 자유롭게 적어주세요."></textarea>
+            </div>
+            <button onclick="submitInquiry('custom')"
+              class="w-full py-2.5 rounded-xl bg-orange-500 hover:bg-orange-400 text-white font-black text-sm">맞춤 의뢰
+              접수하기 (직원 이메일 즉시 알림)</button>
+          </div>
+
+          <div id="inqFormQna" class="hidden space-y-3 text-xs">
+            <h4 class="font-black text-base text-[#0f2544]">❓ 1:1 질문 작성하기</h4>
+            <div class="grid grid-cols-2 gap-2.5">
+              <div><label class="font-bold block mb-1">질문자 성명 *</label><input type="text" id="qnaName"
+                  class="w-full border rounded-lg px-2.5 py-2"></div>
+              <div><label class="font-bold block mb-1">이메일 *</label><input type="email" id="qnaEmail"
+                  class="w-full border rounded-lg px-2.5 py-2"></div>
+            </div>
+            <div><label class="font-bold block mb-1">질문 내용 *</label><textarea id="qnaText" rows="4"
+                class="w-full border rounded-lg px-2.5 py-2" placeholder="궁금하신 내용을 편하신 언어로 질문해 주세요."></textarea></div>
+            <button onclick="submitInquiry('qna')"
+              class="w-full py-2.5 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-black text-sm">질문 등록하기 (직원
+              이메일 즉시 알림)</button>
+          </div>
+        </div>
+
+        <!-- 우측: 문의 목록 & 양방향 번역 결과 -->
+        <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
+          <h4 class="font-black text-base text-[#0f2544] mb-3">🌐 실시간 문의 & 자동 번역 답변 현황</h4>
+          <div id="inquiryBoardList" class="space-y-3 max-h-[500px] overflow-y-auto"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- [메뉴 6] FAQ -->
+    <section id="sec-faq" class="menu-section hidden">
+      <div class="mb-6">
+        <h3 class="serif-kr text-2xl font-black text-[#0f2544]">📖 자주 묻는 질문 (FAQ)</h3>
+        <p class="text-sm text-slate-600 mt-1">입국·공항 픽업·리무진·렌터카(국제운전면허)·환불 규정에 대해 빠르게 확인하세요.</p>
+      </div>
+      <div id="faqListContainer" class="space-y-3 w-full"></div>
+    </section>
+
+    <!-- [메뉴 7] 회사소개 (다국어 동적 렌더링) -->
+    <section id="sec-etc" class="menu-section hidden">
+      <div id="companyIntroContainer"></div>
+    </section>
+
+  </main>
+
+  <footer class="bg-[#0f2544] text-slate-300 text-xs py-6 border-t border-[#d4af37]/40">
+    <div class="max-w-7xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-2">
+      <div>© 2026 K-Royal Inbound Tour. All rights reserved. | 멀티 공항(ICN/PUS) 인바운드 전문</div>
+      <div class="flex gap-4">
+        <a href="admin.html" class="text-amber-300 hover:underline">PC 통합 관리자 (/admin)</a>
+        <a href="m-expense.html" class="text-teal-300 hover:underline">현장 진행자 모바일 비용등록 (/m/expense)</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- 토스트 알림 -->
+  <div id="toastBox"
+    class="fixed bottom-5 left-1/2 -translate-x-1/2 z-50 hidden px-5 py-3 rounded-full bg-slate-900 text-white text-xs font-bold shadow-2xl border border-amber-400">
+  </div>
+
+  <script src="assets/data.js"></script>
+  <script>
+    let currentLocale = localStorage.getItem('kroyal_locale') || 'ko';
+    let selectedPkgId = 'busan';
+    let selectedPkgDur = '3D2N';
+    let selectedHotelId = null;
+    let selectedDispatchId = null;
+    let selectedSeats = [];
+    let currentSeatFilter = 'all';
+    let currentAirportTab = 'ICN';
+
+    function showToast(msg) {
+      const box = document.getElementById('toastBox');
+      box.innerText = msg;
+      box.classList.remove('hidden');
+      setTimeout(() => box.classList.add('hidden'), 3600);
+    }
+
+    /* 1. 전통 창호문살 오프닝 인트로 제어 (2.5초 창호 열림 + 5초 한복 배례 감상 후 메인 이동) */
+    let introOpenTimer = null;
+    let introAutoCloseTimer = null;
+    function playIntroAnimation() {
+      const overlay = document.getElementById('hanokIntroOverlay');
+      if (introOpenTimer) clearTimeout(introOpenTimer);
+      if (introAutoCloseTimer) clearTimeout(introAutoCloseTimer);
+      overlay.classList.remove('hidden-intro', 'intro-opened');
+      introOpenTimer = setTimeout(() => overlay.classList.add('intro-opened'), 400);
+      introAutoCloseTimer = setTimeout(() => closeIntro(), 7900);
+    }
+    function closeIntro() {
+      if (introOpenTimer) clearTimeout(introOpenTimer);
+      if (introAutoCloseTimer) clearTimeout(introAutoCloseTimer);
+      document.getElementById('hanokIntroOverlay').classList.add('hidden-intro');
+      sessionStorage.setItem('kroyal_intro_seen', '1');
+    }
+    function replayIntro() {
+      sessionStorage.removeItem('kroyal_intro_seen');
+      playIntroAnimation();
+    }
+
+    /* 2. 다국어(i18n) 동적 언어 스위처 & UI 텍스트 동기화 */
+    function renderLanguageSwitcher() {
+      const activeLangs = TourStore.getActiveLanguages();
+      const sel = document.getElementById('langSwitcher');
+      sel.innerHTML = '';
+      if (!activeLangs.some(l => l.code === currentLocale)) {
+        currentLocale = 'ko';
+      }
+      activeLangs.forEach(l => {
+        const opt = document.createElement('option');
+        opt.value = l.code;
+        opt.innerText = `${l.flag} ${l.nativeName}`;
+        if (l.code === currentLocale) opt.selected = true;
+        sel.appendChild(opt);
+      });
+    }
+
+    function changeLocale(loc) {
+      currentLocale = loc;
+      localStorage.setItem('kroyal_locale', loc);
+      applyI18n();
+      renderAllSections();
+    }
+
+    function applyI18n() {
+      document.getElementById('uiBrandName').innerText = t('brandName', currentLocale);
+      document.getElementById('uiBrandSub').innerText = t('brandSub', currentLocale);
+      document.getElementById('btnSkipIntro').innerText = t('skipIntro', currentLocale);
+      document.getElementById('btnReplayIntro').innerText = t('replayIntro', currentLocale);
+      document.getElementById('introWelcomeTitle').innerText = t('welcomeTitle', currentLocale);
+      document.getElementById('introWelcomeSub').innerText = t('welcomeSub', currentLocale);
+      document.getElementById('uiHeroTitle').innerText = t('heroTitle', currentLocale);
+      document.getElementById('uiHeroDesc').innerText = t('heroDesc', currentLocale);
+      document.getElementById('btnHeroPackage').innerText = t('btnExplorePackages', currentLocale);
+      document.getElementById('btnHeroBus').innerText = t('btnLimousineSeat', currentLocale);
+      document.getElementById('uiStep1Title').innerText = t('step1Title', currentLocale);
+      document.getElementById('uiStep2Title').innerText = t('step2Title', currentLocale);
+      document.getElementById('uiStep3Title').innerText = t('step3Title', currentLocale);
+      document.getElementById('uiStep4Title').innerText = t('step4Title', currentLocale);
+      document.getElementById('btnConfirmPkg').innerText = t('reserveNow', currentLocale);
+      document.getElementById('uiBusStep1').innerText = t('busSelectRoute', currentLocale);
+      document.getElementById('uiBusStep2').innerText = t('busSelectDispatch', currentLocale);
+      document.getElementById('uiBusStep3').innerText = t('busSelectSeat', currentLocale);
+      document.getElementById('btnInqTabCustom').innerText = t('inquiryCustomTab', currentLocale);
+      document.getElementById('btnInqTabQna').innerText = t('inquiryQnaTab', currentLocale);
+      document.getElementById('currencyBadge').innerText = currentLocale === 'ko' ? '통화: ₩ KRW 우선 (USD 병기)' : 'Currency: $ USD Priority (KRW)';
+
+      const menuKeys = ['attractions', 'regional', 'limousine', 'airport', 'inquiry', 'faq', 'etc'];
+      menuKeys.forEach(k => {
+        document.querySelectorAll(`[data-menu="${k}"]`).forEach(btn => {
+          btn.innerText = t(`menu_${k}`, currentLocale);
+        });
+      });
+
+      // 섹션 제목/설명 및 모든 옵션 선택지(select/button) 다국어 동기화
+      document.getElementById('uiAttTitle').innerText = tx('attTitle', currentLocale);
+      document.getElementById('uiAttDesc').innerText = tx('attDesc', currentLocale);
+      document.getElementById('uiRegTitle').innerText = tx('regTitle', currentLocale);
+      document.getElementById('uiRegDesc').innerText = tx('regDesc', currentLocale);
+
+      const durMap = { '2D1N': tx('dur2D1N', currentLocale), '3D2N': tx('dur3D2N', currentLocale), '4D3N': tx('dur4D3N', currentLocale) };
+      document.querySelectorAll('.dur-btn').forEach(b => {
+        if (durMap[b.dataset.dur]) b.innerText = durMap[b.dataset.dur];
+      });
+
+      const syncSelectByMap = (id, mapObj) => {
+        const el = document.getElementById(id);
+        if (!el || !mapObj) return;
+        Array.from(el.options).forEach(opt => {
+          if (mapObj[opt.value]) opt.text = mapObj[opt.value];
+        });
+      };
+      const syncSelectByArray = (id, arr) => {
+        const el = document.getElementById(id);
+        if (!el || !arr) return;
+        Array.from(el.options).forEach((opt, i) => {
+          if (arr[i]) opt.text = arr[i];
+        });
+      };
+
+      syncSelectByMap('attRegionFilter', tx('attRegions', currentLocale));
+      syncSelectByMap('attCatFilter', tx('attCats', currentLocale));
+      syncSelectByArray('pkgRooms', tx('rooms', currentLocale));
+      syncSelectByArray('ktxRoute', tx('ktxRoutes', currentLocale));
+      syncSelectByArray('ktxClass', tx('ktxClasses', currentLocale));
+      syncSelectByArray('rentalBranchSelect', tx('rentalBranches', currentLocale));
+      syncSelectByArray('pkgAirportRoute', tx('airportRoutes', currentLocale));
+      syncSelectByArray('pkgAirportPickup', tx('airportPickups', currentLocale));
+      syncSelectByArray('busRouteSelect', tx('busRoutes', currentLocale));
+
+      const btnICN = document.getElementById('btnAirportICN');
+      const btnPUS = document.getElementById('btnAirportPUS');
+      if (btnICN) btnICN.innerText = tx('airTabICN', currentLocale);
+      if (btnPUS) btnPUS.innerText = tx('airTabPUS', currentLocale);
+    }
+
+    function navigateMenu(menuId) {
+      document.querySelectorAll('.menu-section').forEach(s => s.classList.add('hidden'));
+      document.getElementById(`sec-${menuId}`).classList.remove('hidden');
+      document.querySelectorAll('.nav-tab').forEach(btn => {
+        if (btn.dataset.menu === menuId) {
+          btn.classList.add('bg-teal-600', 'text-white');
+        } else {
+          btn.classList.remove('bg-teal-600', 'text-white');
+        }
+      });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    /* 3. [메뉴 1] 관광지 렌더링 (상품별 대표이미지 + 경복궁&한복 하단 2단 이미지) */
+    function renderAttractions() {
+      const db = TourStore.getDb();
+      const reg = document.getElementById('attRegionFilter').value;
+      const cat = document.getElementById('attCatFilter').value;
+      const list = db.attractions.filter(a => (reg === 'ALL' || a.region === reg) && (cat === 'ALL' || a.category === cat));
+      const grid = document.getElementById('attractionsGrid');
+      grid.innerHTML = list.map(a => {
+        const title = a.title[currentLocale] || a.title.en || a.title.ko;
+        const desc = a.desc[currentLocale] || a.desc.en || a.desc.ko;
+        const topImgHtml = a.imageUrl
+          ? `<div class="mb-3 overflow-hidden rounded-xl border border-slate-200"><img src="${a.imageUrl}" alt="${title}" class="w-full h-44 object-cover hover:scale-105 transition duration-300"></div>`
+          : '';
+        return `
+          <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200 flex flex-col justify-between hover:shadow-md transition">
+            <div>
+              ${topImgHtml}
+              <div class="flex items-center justify-between gap-2 mb-2">
+                <span class="px-2.5 py-0.5 rounded-full bg-teal-50 text-teal-800 text-[11px] font-bold border border-teal-200">${a.region} · ${a.category}</span>
+                <span class="px-2 py-0.5 rounded bg-amber-100 text-amber-800 text-[10px] font-bold">${a.tag}</span>
+              </div>
+              <h4 class="font-black text-base text-[#0f2544] mb-1.5">${title}</h4>
+              <p class="text-xs text-slate-600 leading-relaxed mb-3">${desc}</p>
+            </div>
+            <div class="flex items-center justify-between pt-3 border-t border-slate-100">
+              <div class="text-xs font-black text-orange-600">${formatCurrency(a.priceKrw, currentLocale)}</div>
+              <a href="${a.ticketUrl}" target="_blank" class="px-3 py-1.5 rounded-lg bg-[#0f2544] text-white text-[11px] font-bold hover:bg-teal-700">${tx('btnTicket', currentLocale)}</a>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    /* 4. [메뉴 2] 지역별 대표 패키지 빌더 */
+    function renderRegionalBuilder() {
+      const db = TourStore.getDb();
+      const tabs = document.getElementById('regionTabs');
+      tabs.innerHTML = db.regionalPackages.map(p => {
+        const active = p.id === selectedPkgId;
+        const name = p.name[currentLocale] || p.name.en || p.name.ko;
+        return `<button onclick="selectPackageRegion('${p.id}')" class="px-4 py-2 rounded-xl text-xs font-black border transition ${active ? 'bg-[#0f2544] text-white border-[#0f2544] shadow' : 'bg-white text-slate-700 border-slate-300 hover:border-teal-500'}">${name}</button>`;
+      }).join('');
+
+      const pkg = db.regionalPackages.find(p => p.id === selectedPkgId) || db.regionalPackages[0];
+      const pkgName = pkg.name[currentLocale] || pkg.name.en || pkg.name.ko;
+      const heroBanner = document.getElementById('pkgHeroBanner');
+      if (heroBanner) {
+        heroBanner.innerHTML = `
+          <div class="bg-white rounded-2xl overflow-hidden shadow-sm border border-slate-200 grid grid-cols-1 md:grid-cols-12 items-center">
+            <div class="md:col-span-5">
+              <img src="${pkg.imageUrl || 'assets/images/busan_haeundae.jpg'}" alt="${pkgName}" class="w-full h-48 md:h-52 object-cover">
+            </div>
+            <div class="md:col-span-7 p-5">
+              <span class="inline-block px-2.5 py-0.5 rounded-full bg-teal-50 text-teal-800 text-[11px] font-bold border border-teal-200 mb-2">${pkg.regionCode || pkg.id.toUpperCase()} · ${tx('pkgSub', currentLocale)}</span>
+              <h4 class="serif-kr text-xl font-black text-[#0f2544] mb-1.5">${pkgName}</h4>
+              <p class="text-xs text-slate-600 leading-relaxed">${tx('pkgIntro', currentLocale)}</p>
+            </div>
+          </div>
+        `;
+      }
+
+      const rentalSel = document.getElementById('rentalCarSelect');
+      rentalSel.innerHTML = db.rentalCars.map(c => {
+        const cName = c.name[currentLocale] || c.name.en || c.name.ko;
+        return `<option value="${c.id}">${cName} (${formatCurrency(c.pricePerDayKrw, currentLocale)}/일)</option>`;
+      }).join('');
+
+      if (!document.getElementById('pkgStartDate').value) {
+        const d = new Date(Date.now() + 2 * 86400000);
+        document.getElementById('pkgStartDate').value = d.toISOString().split('T')[0];
+      }
+
+      selectPkgDuration(selectedPkgDur);
+    }
+
+    function selectPackageRegion(id) {
+      selectedPkgId = id;
+      selectedHotelId = null;
+      renderRegionalBuilder();
+    }
+
+    function selectPkgDuration(dur) {
+      selectedPkgDur = dur;
+      document.querySelectorAll('.dur-btn').forEach(b => {
+        if (b.dataset.dur === dur) {
+          b.classList.add('bg-teal-600', 'text-white', 'border-teal-600');
+          b.classList.remove('bg-white', 'text-slate-700', 'border-slate-200');
+        } else {
+          b.classList.remove('bg-teal-600', 'text-white', 'border-teal-600');
+          b.classList.add('bg-white', 'text-slate-700', 'border-slate-200');
+        }
+      });
+
+      const db = TourStore.getDb();
+      const pkg = db.regionalPackages.find(p => p.id === selectedPkgId) || db.regionalPackages[0];
+      const list = pkg.itineraries[dur] || pkg.itineraries['3D2N'];
+      document.getElementById('pkgItineraryList').innerHTML = list.map(line => `<li>• ${line}</li>`).join('');
+
+      if (!selectedHotelId || !pkg.hotels.some(h => h.id === selectedHotelId)) {
+        selectedHotelId = pkg.hotels[0].id;
+      }
+
+      document.getElementById('pkgHotelsList').innerHTML = pkg.hotels.map(h => {
+        const isSel = h.id === selectedHotelId;
+        const hName = h.name[currentLocale] || h.name.en || h.name.ko;
+        return `
+          <div onclick="selectedHotelId='${h.id}'; selectPkgDuration('${dur}');" class="cursor-pointer rounded-xl p-3.5 border-2 transition ${isSel ? 'border-teal-600 bg-teal-50/50' : 'border-slate-200 hover:border-teal-300'}">
+            <div class="flex items-center justify-between gap-2 mb-1">
+              <span class="px-2 py-0.5 rounded bg-amber-100 text-amber-900 text-[10px] font-bold">${h.grade}</span>
+              <span class="text-xs font-black text-teal-700">${formatCurrency(h.pricePerNightKrw, currentLocale)} / ${tx('perNight', currentLocale)}</span>
+            </div>
+            <div class="font-bold text-sm text-[#0f2544]">${hName}</div>
+            <div class="text-[11px] text-slate-500 mt-1">${h.feature} · ${h.breakfast ? tx('breakfastInc', currentLocale) : tx('breakfastExc', currentLocale)}</div>
+            <a href="${h.extUrl}" target="_blank" onclick="event.stopPropagation()" class="inline-block mt-2 text-[11px] text-sky-700 font-bold hover:underline">${tx('hotelDetail', currentLocale)}</a>
+          </div>
+        `;
+      }).join('');
+
+      updatePkgQuote();
+    }
+
+    function onPkgTransportChange() {
+      const val = document.querySelector('input[name="pkgTransport"]:checked').value;
+      document.getElementById('pkgLimousineBox').classList.toggle('hidden', val !== 'limousine');
+      document.getElementById('pkgKtxBox').classList.toggle('hidden', val !== 'ktx');
+      document.getElementById('pkgRentalBox').classList.toggle('hidden', val !== 'rental');
+      updatePkgQuote();
+    }
+
+    function syncPkgPaxCounts() {
+      const adults = Math.max(0, parseInt(document.getElementById('pkgAdults').value) || 0);
+      const children = Math.max(0, parseInt(document.getElementById('pkgChildren').value) || 0);
+      const total = Math.max(1, adults + children);
+      document.getElementById('pkgPax').value = total;
+      updatePkgQuote();
+    }
+
+    function updatePkgQuote() {
+      const db = TourStore.getDb();
+      const pkg = db.regionalPackages.find(p => p.id === selectedPkgId) || db.regionalPackages[0];
+      const nights = selectedPkgDur === '2D1N' ? 1 : (selectedPkgDur === '3D2N' ? 2 : 3);
+      const days = nights + 1;
+      const adults = Math.max(0, parseInt(document.getElementById('pkgAdults')?.value) ?? 2);
+      const children = Math.max(0, parseInt(document.getElementById('pkgChildren')?.value) ?? 0);
+      const male = Math.max(0, parseInt(document.getElementById('pkgMale')?.value) ?? 1);
+      const female = Math.max(0, parseInt(document.getElementById('pkgFemale')?.value) ?? 1);
+      const pax = Math.max(1, adults + children);
+      document.getElementById('pkgPax').value = pax;
+      const rooms = parseInt(document.getElementById('pkgRooms').value) || 1;
+      const hotel = pkg.hotels.find(h => h.id === selectedHotelId) || pkg.hotels[0];
+      const transport = document.querySelector('input[name="pkgTransport"]:checked').value;
+
+      // 성인 100%, 소인 70%(30% 할인) 기준 투어비 산정
+      const tourCost = Math.round(pkg.basePerDayKrw * days * (adults + children * 0.7));
+      const hotelCost = hotel.pricePerNightKrw * nights * rooms;
+
+      let transCost = 0;
+      let transLabel = '';
+      if (transport === 'limousine') {
+        const seatCnt = selectedSeats.length > 0 ? selectedSeats.length : pax;
+        transCost = 68000 * seatCnt;
+        transLabel = `전용 리무진 (${selectedSeats.length > 0 ? selectedSeats.join(', ') : seatCnt + '석 예정'})`;
+      } else if (transport === 'ktx') {
+        const ktxBase = parseInt(document.getElementById('ktxRoute').value) || 59800;
+        const ktxMult = parseFloat(document.getElementById('ktxClass').value) || 1;
+        transCost = Math.round(ktxBase * ktxMult * pax);
+        transLabel = 'KTX 고속열차';
+      } else {
+        const carId = document.getElementById('rentalCarSelect').value;
+        const car = db.rentalCars.find(c => c.id === carId) || db.rentalCars[0];
+        const cdw = document.getElementById('rentalSuperCdw').checked ? car.insurancePerDayKrw : 0;
+        transCost = (car.pricePerDayKrw + cdw) * days;
+        transLabel = `렌터카 (${car.name.ko}, ${days}일)`;
+      }
+
+      const pickupCost = parseInt(document.getElementById('pkgAirportPickup').value) || 0;
+      const total = tourCost + hotelCost + transCost + pickupCost;
+
+      document.getElementById('pkgReceiptLines').innerHTML = `
+        <div class="flex justify-between"><span>• ${pkg.name.ko} (${days}일 × ${pax}명: 성인${adults}·소인${children} / 남${male}·여${female})</span><strong>${formatCurrency(tourCost, currentLocale)}</strong></div>
+        <div class="flex justify-between"><span>• ${hotel.name.ko} (${nights}박 × ${rooms}실)</span><strong>${formatCurrency(hotelCost, currentLocale)}</strong></div>
+        <div class="flex justify-between"><span>• 교통: ${transLabel}</span><strong>${formatCurrency(transCost, currentLocale)}</strong></div>
+        <div class="flex justify-between"><span>• 공항 픽업/샌딩</span><strong>${formatCurrency(pickupCost, currentLocale)}</strong></div>
+      `;
+      document.getElementById('pkgTotalPrice').innerText = formatCurrency(total, currentLocale);
+      return { pkg, hotel, total, transLabel, pax, adults, children, male, female };
+    }
+
+    function submitPackageReservation() {
+      const custName = document.getElementById('pkgCustName').value.trim();
+      const custEmail = document.getElementById('pkgCustEmail').value.trim();
+      const startDate = document.getElementById('pkgStartDate').value;
+      const adults = Math.max(0, parseInt(document.getElementById('pkgAdults').value) || 0);
+      const children = Math.max(0, parseInt(document.getElementById('pkgChildren').value) || 0);
+      const male = Math.max(0, parseInt(document.getElementById('pkgMale').value) || 0);
+      const female = Math.max(0, parseInt(document.getElementById('pkgFemale').value) || 0);
+      if (!custName || !custEmail) {
+        showToast('⚠️ 대표 예약자 성명과 이메일을 입력해 주세요.');
+        return;
+      }
+      if (adults + children < 1) {
+        showToast('⚠️ 성인 또는 소인 인원을 1명 이상 입력해 주세요.');
+        return;
+      }
+      if (male + female !== adults + children) {
+        showToast('⚠️ 남성 + 여성 인원 합계가 총 인원(성인+소인)과 일치해야 합니다.');
+        return;
+      }
+
+      const db = TourStore.getDb();
+      if (db.closedDates.includes(startDate)) {
+        showToast('⚠️ 선택하신 날짜는 관리자 설정에 의해 예약 마감되었습니다.');
+        return;
+      }
+
+      const q = updatePkgQuote();
+      const airportRoute = document.getElementById('pkgAirportRoute').value;
+      const tourCode = `KR-${selectedPkgId.slice(0, 2).toUpperCase()}-${Date.now().toString().slice(-4)}`;
+      const resId = `RES-${Date.now().toString().slice(-6)}`;
+      const paxSummary = `총 ${q.pax}명(성인${q.adults}·소인${q.children}/남${q.male}·여${q.female})`;
+
+      db.reservations.unshift({
+        id: resId,
+        tourCode,
+        customerName: custName,
+        email: custEmail,
+        locale: currentLocale,
+        type: `${q.pkg.name.ko} (${selectedPkgDur}, ${paxSummary})`,
+        airportRoute,
+        totalKrw: q.total,
+        status: 'Confirmed',
+        createdAt: new Date().toLocaleString('ko-KR')
+      });
+
+      // 행사 운영 원장에도 자동 추가 (모바일 비용등록 연동)
+      db.tourOperations.unshift({
+        tourCode,
+        title: `${custName} 팀 ${q.pkg.name.ko} (${selectedPkgDur})`,
+        routeBadge: airportRoute,
+        manager: '김민수 가이드',
+        progress: 10,
+        revenueKrw: q.total,
+        expenses: []
+      });
+      TourStore.saveDb(db);
+
+      const noti = TourStore.dispatchAdminNotification('신규 예약', custName, `예약번호: ${resId} / 행사코드: ${tourCode} / 상품: ${q.pkg.name.ko} ${selectedPkgDur} / ${q.transLabel} / 금액: ₩${q.total.toLocaleString()}`);
+      showToast(`🎉 예약 확정! 행사코드 ${tourCode} 발급 완료 (${noti ? noti.subject : ''})`);
+    }
+
+    /* 5. [메뉴 3] 리무진버스 항공사 스타일 평면도 좌석 선택 */
+    function initBusDateDefault() {
+      const db = TourStore.getDb();
+      const inp = document.getElementById('busDateInput');
+      if (!inp.value && db.busDispatches.length > 0) {
+        inp.value = db.busDispatches[0].date;
+      }
+    }
+
+    function renderBusDispatches() {
+      initBusDateDefault();
+      const db = TourStore.getDb();
+      const route = document.getElementById('busRouteSelect').value;
+      const date = document.getElementById('busDateInput').value;
+      const matched = db.busDispatches.filter(d => d.route === route && d.date === date);
+      const badge = document.getElementById('busDateAvailabilityBadge');
+      const listEl = document.getElementById('busDispatchList');
+
+      if (matched.length === 0) {
+        badge.innerHTML = `<span class="px-3 py-1 rounded-full bg-rose-100 text-rose-700">배정된 버스 없음 (0 Buses Assigned)</span>`;
+        listEl.innerHTML = `<div class="p-4 rounded-xl bg-slate-50 text-center text-xs text-slate-500 border border-dashed">선택하신 날짜/노선에 배정된 버스가 없습니다. 다른 날짜를 선택해 주세요.</div>`;
+        selectedDispatchId = null;
+        renderBusCabinMap();
+        return;
+      }
+
+      badge.innerHTML = `<span class="px-3 py-1 rounded-full bg-teal-100 text-teal-800">✅ 운행 가능: ${matched.length}대 배정 (${matched.length} Buses)</span>`;
+      if (!selectedDispatchId || !matched.some(m => m.id === selectedDispatchId)) {
+        selectedDispatchId = matched[0].id;
+        selectedSeats = [];
+      }
+
+      listEl.innerHTML = matched.map(d => {
+        const bus = db.busFleet.find(b => b.id === d.busId) || { name: '리무진', grade: '28인승 우등', capacity: 28, plate: '' };
+        const remain = bus.capacity - d.bookedSeats.length - d.blockedSeats.length;
+        const isClosed = d.status !== 'Open' || remain <= 0;
+        const isSel = d.id === selectedDispatchId;
+        return `
+          <div onclick="${isClosed ? '' : `selectedDispatchId='${d.id}'; selectedSeats=[]; renderBusDispatches();`}" class="rounded-xl p-3.5 border-2 transition ${isClosed ? 'bg-slate-100 opacity-60 cursor-not-allowed' : (isSel ? 'border-teal-600 bg-teal-50 cursor-pointer' : 'border-slate-200 hover:border-teal-400 cursor-pointer')}">
+            <div class="flex items-center justify-between text-xs mb-1">
+              <span class="font-black text-[#0f2544]">⏰ ${d.time} 출발 · ${bus.name} (${bus.plate})</span>
+              ${isClosed ? `<span class="px-2 py-0.5 rounded bg-rose-600 text-white text-[10px] font-bold">예약 마감 (Sold Out)</span>` : `<span class="px-2 py-0.5 rounded bg-teal-600 text-white text-[10px] font-bold">잔여 ${remain}석</span>`}
+            </div>
+            <div class="text-[11px] text-slate-600 flex justify-between">
+              <span>${bus.grade} · 탑승: ${d.pickupSpot}</span>
+              <strong class="text-orange-600">${formatCurrency(d.priceKrw, currentLocale)}</strong>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      renderBusCabinMap();
+    }
+
+    function setSeatFilter(filter, btn) {
+      currentSeatFilter = filter;
+      document.querySelectorAll('.seat-filter-btn').forEach(b => {
+        b.classList.remove('bg-[#0f2544]', 'text-white');
+        b.classList.add('bg-slate-100');
+      });
+      btn.classList.add('bg-[#0f2544]', 'text-white');
+      btn.classList.remove('bg-slate-100');
+      renderBusCabinMap();
+    }
+
+    function renderBusCabinMap() {
+      const container = document.getElementById('busCabinMapContainer');
+      const db = TourStore.getDb();
+      const disp = db.busDispatches.find(d => d.id === selectedDispatchId);
+      if (!disp) {
+        container.innerHTML = `<div class="py-12 text-center text-xs text-slate-500">좌측에서 배정된 버스를 선택하시면 비행기 좌석 스타일의 전체 평면도가 표시됩니다.</div>`;
+        return;
+      }
+
+      const bus = db.busFleet.find(b => b.id === disp.busId) || { grade: '28인승 우등', capacity: 28 };
+      const rows = bus.grade.includes('21') ? 7 : 9;
+
+      let html = `
+        <!-- 전면 조종석 / 승하차구 -->
+        <div class="border-b-2 border-dashed border-slate-300 pb-3 mb-4">
+          <div class="text-[10px] text-center font-bold text-slate-400 tracking-widest mb-2">FRONT COCKPIT & WINDSHIELD</div>
+          <div class="flex justify-between items-center text-[11px] font-bold">
+            <div class="px-3 py-1.5 rounded-lg bg-slate-800 text-white">🧑‍✈️ 운전석 (Driver)</div>
+            <div class="px-3 py-1.5 rounded-lg bg-amber-100 text-amber-900 border border-amber-300">🚩 가이드석</div>
+            <div class="px-3 py-1.5 rounded-lg bg-teal-100 text-teal-900 border border-teal-300">🚪 출입문 (Door)</div>
+          </div>
+        </div>
+        <div class="flex justify-between text-[10px] font-bold text-sky-700 mb-2 px-1">
+          <span>🪟 좌측 창문 (Window)</span>
+          <span>통로 (Aisle)</span>
+          <span>우측 독립 창문 (Solo) 🪟</span>
+        </div>
+        <div class="space-y-2">
+      `;
+
+      for (let r = 1; r <= rows; r++) {
+        const isFront = r <= 3;
+        const zoneTag = isFront ? 'Front' : (r <= 6 ? 'Mid' : 'Rear');
+        const seats = [
+          { code: `${r}A`, type: 'window', label: '좌측 창측(Window)' },
+          { code: `${r}B`, type: 'aisle', label: '좌측 내측/통로(Aisle)' },
+          { code: `${r}C`, type: 'solo', label: '우측 1인 독립 창측(Solo Window)' }
+        ];
+
+        const makeSeatBtn = (s) => {
+          const isOcc = disp.bookedSeats.includes(s.code);
+          const isBlk = disp.blockedSeats.includes(s.code);
+          const isSel = selectedSeats.includes(s.code);
+          let matchesFilter = true;
+          if (currentSeatFilter === 'window') matchesFilter = (s.type === 'window' || s.type === 'solo');
+          else if (currentSeatFilter === 'aisle') matchesFilter = (s.type === 'aisle');
+          else if (currentSeatFilter === 'solo') matchesFilter = (s.type === 'solo');
+          else if (currentSeatFilter === 'front') matchesFilter = isFront;
+
+          const stateCls = isOcc ? 'occupied' : (isBlk ? 'blocked' : (isSel ? 'selected' : 'available bg-white'));
+          const dimCls = (!isOcc && !isBlk && !matchesFilter) ? 'dimmed' : '';
+          const tip = `${s.code} · ${s.label} · ${zoneTag} Zone · 140° 리클라이닝 & USB`;
+          return `
+            <button type="button" title="${tip}" onclick="${(isOcc || isBlk) ? '' : `toggleBusSeat('${s.code}')`}" class="seat-btn ${stateCls} ${dimCls} w-14 h-11 flex flex-col items-center justify-center text-[11px] font-black">
+              <span>${isOcc ? '✕' : s.code}</span>
+              <span class="text-[9px] font-normal">${s.type === 'solo' ? '⭐독립' : (s.type === 'window' ? '🪟창측' : '🚶통로')}</span>
+            </button>
+          `;
+        };
+
+        html += `
+          <div class="flex items-center justify-between gap-2">
+            <div class="flex gap-1.5">${makeSeatBtn(seats[0])}${makeSeatBtn(seats[1])}</div>
+            <div class="text-[10px] font-bold text-slate-400">R${r}</div>
+            <div>${makeSeatBtn(seats[2])}</div>
+          </div>
+        `;
+      }
+
+      html += `</div><div class="mt-4 pt-2 border-t border-dashed border-slate-300 text-center text-[10px] font-bold text-slate-400">REAR LUGGAGE COMPARTMENT (대형 수하물칸)</div>`;
+      container.innerHTML = html;
+      updateBusSummary();
+    }
+
+    function toggleBusSeat(code) {
+      const idx = selectedSeats.indexOf(code);
+      if (idx > -1) selectedSeats.splice(idx, 1);
+      else selectedSeats.push(code);
+      renderBusCabinMap();
+    }
+
+    function autoAssignAdjacentSeats() {
+      const db = TourStore.getDb();
+      const disp = db.busDispatches.find(d => d.id === selectedDispatchId);
+      if (!disp) return;
+      for (let r = 1; r <= 9; r++) {
+        const a = `${r}A`, b = `${r}B`;
+        if (!disp.bookedSeats.includes(a) && !disp.blockedSeats.includes(a) && !disp.bookedSeats.includes(b) && !disp.blockedSeats.includes(b)) {
+          selectedSeats = [a, b];
+          renderBusCabinMap();
+          showToast(`✨ 동반객 커플 좌석(${a} 창측, ${b} 내측)이 자동 추천 선택되었습니다!`);
+          return;
+        }
+      }
+      showToast('⚠️ 연속된 빈 커플 좌석이 없습니다.');
+    }
+
+    function updateBusSummary() {
+      const db = TourStore.getDb();
+      const disp = db.busDispatches.find(d => d.id === selectedDispatchId);
+      const sumEl = document.getElementById('selectedBusSummary');
+      const pkgInfo = document.getElementById('pkgLimousineSelectedInfo');
+      if (!disp || selectedSeats.length === 0) {
+        sumEl.innerText = '버스 평면도에서 원하시는 좌석을 클릭해 주세요.';
+        return;
+      }
+      const bus = db.busFleet.find(b => b.id === disp.busId);
+      const total = disp.priceKrw * selectedSeats.length;
+      const text = `${disp.date} ${disp.time} · ${disp.route} · ${bus ? bus.name : ''} · 좌석 [${selectedSeats.join(', ')}] · 합계 ${formatCurrency(total, currentLocale)}`;
+      sumEl.innerText = text;
+      if (pkgInfo) pkgInfo.innerText = text;
+    }
+
+    function submitBusReservation() {
+      const name = document.getElementById('busCustName').value.trim();
+      const email = document.getElementById('busCustEmail').value.trim();
+      if (!selectedDispatchId || selectedSeats.length === 0) {
+        showToast('⚠️ 좌석을 1개 이상 선택해 주세요.');
+        return;
+      }
+      if (!name || !email) {
+        showToast('⚠️ 탑승자 성명과 이메일을 입력해 주세요.');
+        return;
+      }
+      const db = TourStore.getDb();
+      const disp = db.busDispatches.find(d => d.id === selectedDispatchId);
+      disp.bookedSeats.push(...selectedSeats);
+      const total = disp.priceKrw * selectedSeats.length;
+      const resId = `BUS-${Date.now().toString().slice(-6)}`;
+
+      const adults = Math.max(0, parseInt(document.getElementById('busAdults').value) || 0);
+      const children = Math.max(0, parseInt(document.getElementById('busChildren').value) || 0);
+      const male = Math.max(0, parseInt(document.getElementById('busMale').value) || 0);
+      const female = Math.max(0, parseInt(document.getElementById('busFemale').value) || 0);
+      const paxText = `성인${adults}·소인${children}/남${male}·여${female}`;
+
+      db.reservations.unshift({
+        id: resId,
+        tourCode: resId,
+        customerName: name,
+        email,
+        locale: currentLocale,
+        type: `리무진 단독 (${disp.route} · ${selectedSeats.join(',')} · ${paxText})`,
+        airportRoute: disp.route,
+        totalKrw: total,
+        status: 'Confirmed',
+        createdAt: new Date().toLocaleString('ko-KR')
+      });
+      TourStore.saveDb(db);
+
+      const noti = TourStore.dispatchAdminNotification('신규 예약', name, `리무진 좌석 예매: ${disp.date} ${disp.time} ${disp.route} 좌석 [${selectedSeats.join(', ')}] (${paxText})`);
+      selectedSeats = [];
+      renderBusDispatches();
+      showToast(`🎉 리무진 좌석 예매 완료! (${noti ? noti.subject : ''})`);
+    }
+
+    /* 6. [메뉴 4] 공항 픽업 */
+    function renderAirportTransfers(airport) {
+      currentAirportTab = airport;
+      document.getElementById('btnAirportICN').className = airport === 'ICN' ? 'px-4 py-2 rounded-xl bg-[#0f2544] text-white font-bold text-sm' : 'px-4 py-2 rounded-xl bg-white border border-slate-300 font-bold text-sm';
+      document.getElementById('btnAirportPUS').className = airport === 'PUS' ? 'px-4 py-2 rounded-xl bg-[#0f2544] text-white font-bold text-sm' : 'px-4 py-2 rounded-xl bg-white border border-slate-300 font-bold text-sm';
+
+      const db = TourStore.getDb();
+      const items = db.airportTransfers.filter(a => a.airport === airport);
+      document.getElementById('airportCardsGrid').innerHTML = items.map(a => `
+        <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
+          <div class="flex justify-between items-start mb-2">
+            <span class="px-2.5 py-0.5 rounded bg-sky-100 text-sky-900 text-xs font-bold">${a.routeLabel}</span>
+            <span class="text-sm font-black text-orange-600">${formatCurrency(a.priceKrw, currentLocale)}</span>
+          </div>
+          <h4 class="font-black text-base text-[#0f2544]">${a.vehicle}</h4>
+          <div class="text-xs text-slate-600 mb-3">${a.capacity}</div>
+          <div class="bg-slate-50 rounded-xl p-3 border border-slate-200 flex items-center justify-between text-xs">
+            <div>
+              <div class="font-bold text-[#0f2544]">🧑‍✈️ ${a.chauffeur} (${a.exp})</div>
+              <div class="text-[11px] text-slate-500 mt-0.5">가능 언어: ${a.langs.join(', ')}</div>
+            </div>
+            <div class="px-2 py-1 rounded bg-amber-100 text-amber-900 font-black">★ ${a.rating}</div>
+          </div>
+        </div>
+      `).join('');
+
+      document.getElementById('atVehicleSelect').innerHTML = items.map(a => `<option value="${a.id}">${a.vehicle} (${formatCurrency(a.priceKrw, currentLocale)})</option>`).join('');
+    }
+
+    function submitAirportReservation() {
+      const name = document.getElementById('atCustName').value.trim();
+      const email = document.getElementById('atCustEmail').value.trim();
+      const flight = document.getElementById('atFlightInfo').value.trim() || '항공편 추후 전달';
+      if (!name || !email) {
+        showToast('⚠️ 예약자 성명과 이메일을 입력해 주세요.');
+        return;
+      }
+      const db = TourStore.getDb();
+      const item = db.airportTransfers.find(a => a.id === document.getElementById('atVehicleSelect').value);
+      const adults = Math.max(0, parseInt(document.getElementById('atAdults').value) || 0);
+      const children = Math.max(0, parseInt(document.getElementById('atChildren').value) || 0);
+      const male = Math.max(0, parseInt(document.getElementById('atMale').value) || 0);
+      const female = Math.max(0, parseInt(document.getElementById('atFemale').value) || 0);
+      const paxText = `성인${adults}·소인${children}/남${male}·여${female}`;
+      const resId = `AT-${Date.now().toString().slice(-6)}`;
+      db.reservations.unshift({
+        id: resId,
+        tourCode: resId,
+        customerName: name,
+        email,
+        locale: currentLocale,
+        type: `공항 픽업 (${item.vehicle}, ${paxText})`,
+        airportRoute: `${item.airport} (${flight})`,
+        totalKrw: item.priceKrw,
+        status: 'Confirmed',
+        createdAt: new Date().toLocaleString('ko-KR')
+      });
+      TourStore.saveDb(db);
+      const noti = TourStore.dispatchAdminNotification('신규 예약', name, `공항 픽업: ${item.routeLabel} / ${item.vehicle} / 항공편: ${flight}`);
+      showToast(`🎉 공항 픽업 예약 완료! (${noti ? noti.subject : ''})`);
+    }
+
+    /* 7. [메뉴 5] 여행문의 (양방향 자동 번역) */
+    function switchInquiryTab(tab) {
+      document.getElementById('inqFormCustom').classList.toggle('hidden', tab !== 'custom');
+      document.getElementById('inqFormQna').classList.toggle('hidden', tab !== 'qna');
+      document.getElementById('btnInqTabCustom').className = tab === 'custom' ? 'px-4 py-2 rounded-xl bg-[#0f2544] text-white font-bold text-sm' : 'px-4 py-2 rounded-xl bg-white border border-slate-300 font-bold text-sm';
+      document.getElementById('btnInqTabQna').className = tab === 'qna' ? 'px-4 py-2 rounded-xl bg-[#0f2544] text-white font-bold text-sm' : 'px-4 py-2 rounded-xl bg-white border border-slate-300 font-bold text-sm';
+    }
+
+    function submitInquiry(type) {
+      const db = TourStore.getDb();
+      let entry = null;
+      if (type === 'custom') {
+        const name = document.getElementById('inqCustName').value.trim();
+        const email = document.getElementById('inqCustEmail').value.trim();
+        const detail = document.getElementById('inqDetail').value.trim();
+        if (!name || !email || !detail) {
+          showToast('⚠️ 성명, 이메일, 요청 내용을 입력해 주세요.');
+          return;
+        }
+        entry = {
+          id: `INQ-${Date.now().toString().slice(-4)}`,
+          type: 'custom',
+          customerName: name,
+          email,
+          sourceLocale: currentLocale,
+          travelDates: document.getElementById('inqDates').value || '미정',
+          paxDetail: document.getElementById('inqPax').value || '미정',
+          airport: document.getElementById('inqAirport').value,
+          transport: document.getElementById('inqTransport').value,
+          regions: [document.getElementById('inqRegions').value || '전국'],
+          originalText: detail,
+          koTranslatedText: autoTranslateText(detail, currentLocale, 'ko'),
+          adminReplyKo: '',
+          translatedReply: '',
+          status: 'Waiting',
+          createdAt: new Date().toLocaleString('ko-KR')
+        };
+      } else {
+        const name = document.getElementById('qnaName').value.trim();
+        const email = document.getElementById('qnaEmail').value.trim();
+        const text = document.getElementById('qnaText').value.trim();
+        if (!name || !email || !text) {
+          showToast('⚠️ 성명, 이메일, 질문 내용을 입력해 주세요.');
+          return;
+        }
+        entry = {
+          id: `QNA-${Date.now().toString().slice(-4)}`,
+          type: 'qna',
+          customerName: name,
+          email,
+          sourceLocale: currentLocale,
+          originalText: text,
+          koTranslatedText: autoTranslateText(text, currentLocale, 'ko'),
+          adminReplyKo: '',
+          translatedReply: '',
+          status: 'Waiting',
+          createdAt: new Date().toLocaleString('ko-KR')
+        };
+      }
+
+      db.inquiries.unshift(entry);
+      TourStore.saveDb(db);
+      const noti = TourStore.dispatchAdminNotification('신규 문의', entry.customerName, `[${entry.sourceLocale}] 한국어 번역: ${entry.koTranslatedText}`);
+      renderInquiryBoard();
+      showToast(`📩 문의 접수 완료! (${noti ? noti.subject : ''})`);
+    }
+
+    function renderInquiryBoard() {
+      const db = TourStore.getDb();
+      document.getElementById('inquiryBoardList').innerHTML = db.inquiries.map(inq => {
+        const replyShow = inq.adminReplyKo
+          ? (currentLocale === 'ko' ? inq.adminReplyKo : (inq.translatedReply || autoTranslateText(inq.adminReplyKo, 'ko', currentLocale)))
+          : '';
+        return `
+          <div class="p-3.5 rounded-xl border border-slate-200 bg-slate-50 text-xs">
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="font-black text-[#0f2544]">${inq.customerName} <span class="px-1.5 py-0.5 rounded bg-sky-100 text-sky-800 text-[10px]">${inq.sourceLocale.toUpperCase()}</span></span>
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${inq.status === 'Answered' ? 'bg-teal-100 text-teal-800' : 'bg-amber-100 text-amber-800'}">${inq.status === 'Answered' ? '답변 완료' : '답변 대기'}</span>
+            </div>
+            <div class="text-slate-700 font-medium">${inq.originalText}</div>
+            ${inq.koTranslatedText && inq.sourceLocale !== 'ko' ? `<div class="text-[11px] text-slate-500 mt-1">↳ 관리자용 번역: ${inq.koTranslatedText}</div>` : ''}
+            ${replyShow ? `<div class="mt-2 p-2.5 rounded-lg bg-white border border-teal-200 text-teal-900"><strong>💬 여행사 답변 (${currentLocale.toUpperCase()}):</strong> ${replyShow}</div>` : ''}
+          </div>
+        `;
+      }).join('');
+    }
+
+    /* 8. [메뉴 6] FAQ (답변 폰트 확대 + 볼드체 + 5줄 이상 상세 답변) */
+    function renderFaq() {
+      const db = TourStore.getDb();
+      document.getElementById('faqListContainer').innerHTML = db.faqList.map(f => {
+        const q = f.q[currentLocale] || f.q.en || f.q.ko;
+        const a = f.a[currentLocale] || f.a.en || f.a.ko;
+        return `
+          <details class="bg-white rounded-xl p-5 shadow-sm border border-slate-200 cursor-pointer">
+            <summary class="font-extrabold text-base text-[#0f2544] flex items-center justify-between">
+              <span><span class="text-teal-600 mr-2">[${f.category}]</span>${q}</span>
+            </summary>
+            <p class="text-xs md:text-sm font-normal text-slate-700 mt-3 pt-3 border-t border-slate-200 leading-relaxed whitespace-pre-line">${a}</p>
+          </details>
+        `;
+      }).join('');
+    }
+
+    function renderCompanyIntro() {
+      const c = tx('company', currentLocale);
+      const container = document.getElementById('companyIntroContainer');
+      if (!container || !c) return;
+      container.innerHTML = `
+        <div class="mb-6">
+          <h3 class="serif-kr text-2xl font-black text-[#0f2544]">${c.title}</h3>
+          <p class="text-sm text-slate-600 mt-1">${c.subtitle}</p>
+        </div>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-6">
+          <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 lg:col-span-2">
+            <div class="flex items-center gap-3 mb-3">
+              <span class="text-3xl">👑</span>
+              <div>
+                <h4 class="font-black text-lg text-[#0f2544]">${c.name}</h4>
+                <p class="text-xs text-teal-700 font-bold">${c.badge}</p>
+              </div>
+            </div>
+            <p class="text-xs md:text-sm text-slate-700 leading-relaxed mb-4">${c.desc}</p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs bg-slate-50 p-4 rounded-xl border border-slate-200">
+              <div><strong class="text-[#0f2544]">• ${c.ceoLabel}:</strong> ${c.ceoVal}</div>
+              <div><strong class="text-[#0f2544]">• ${c.regLabel}:</strong> ${c.regVal}</div>
+              <div><strong class="text-[#0f2544]">• ${c.bizLabel}:</strong> ${c.bizVal}</div>
+              <div><strong class="text-[#0f2544]">• ${c.telLabel}:</strong> ${c.telVal}</div>
+              <div><strong class="text-[#0f2544]">• ${c.faxLabel}:</strong> ${c.faxVal}</div>
+              <div><strong class="text-[#0f2544]">• ${c.emailLabel}:</strong> ${c.emailVal}</div>
+            </div>
+          </div>
+          <div class="bg-[#0f2544] text-white rounded-2xl p-6 shadow-sm border-2 border-[#d4af37]/50 flex flex-col justify-between">
+            <div>
+              <div class="text-2xl mb-2">📍</div>
+              <h4 class="font-black text-base text-amber-300 mb-3">${c.locTitle}</h4>
+              <div class="space-y-3 text-xs text-slate-200">
+                <div>
+                  <div class="font-black text-white">${c.hqName}</div>
+                  <p class="mt-0.5 leading-relaxed">${c.hqAddr}</p>
+                </div>
+                <div class="pt-2 border-t border-white/15">
+                  <div class="font-black text-white">${c.bsName}</div>
+                  <p class="mt-0.5 leading-relaxed">${c.bsAddr}</p>
+                </div>
+              </div>
+            </div>
+            <div class="mt-4 pt-3 border-t border-white/15 text-[11px] text-amber-200">${c.hours}</div>
+          </div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
+            <div class="text-2xl mb-2">🚨</div>
+            <h4 class="font-black text-base text-[#0f2544] mb-2">${c.safetyTitle}</h4>
+            <ul class="text-xs text-slate-600 space-y-1.5">${c.safetyList.map(li => `<li>• ${li}</li>`).join('')}</ul>
+          </div>
+          <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
+            <div class="text-2xl mb-2">📜</div>
+            <h4 class="font-black text-base text-[#0f2544] mb-2">${c.policyTitle}</h4>
+            <ul class="text-xs text-slate-600 space-y-1.5">${c.policyList.map(li => `<li>• ${li}</li>`).join('')}</ul>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderAllSections() {
+      renderAttractions();
+      renderRegionalBuilder();
+      renderBusDispatches();
+      renderAirportTransfers(currentAirportTab);
+      renderInquiryBoard();
+      renderFaq();
+      renderCompanyIntro();
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      renderLanguageSwitcher();
+      applyI18n();
+      renderAllSections();
+      navigateMenu('attractions');
+
+      if (!sessionStorage.getItem('kroyal_intro_seen')) {
+        playIntroAnimation();
+      } else {
+        document.getElementById('hanokIntroOverlay').classList.add('hidden-intro');
+      }
+    });
+  </script>
+</body>
+
+</html>

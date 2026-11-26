@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>현장 진행자 비용·영수증 즉시 등록 (/m/expense)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Noto Sans KR', sans-serif; background: #e2e8f0; color: #1e293b; }
+  </style>
+</head>
+<body class="min-h-screen py-4 px-3">
+  <div class="max-w-md mx-auto bg-white rounded-3xl shadow-xl overflow-hidden border border-slate-200">
+    <!-- 모바일 상단 바 -->
+    <header class="bg-[#0f2544] text-white px-5 py-4 flex items-center justify-between">
+      <div>
+        <div class="text-[11px] text-amber-300 font-bold">K-ROYAL TOUR FIELD APP</div>
+        <h1 class="font-black text-base">📱 현장 비용·영수증 즉시 등록</h1>
+      </div>
+      <a href="admin.html" class="px-2.5 py-1 rounded-lg bg-white/15 text-[11px] font-bold">어드민 ↗</a>
+    </header>
+
+    <div class="p-5 space-y-4 text-xs">
+      <!-- 진행자 선택 -->
+      <div class="bg-teal-50 border border-teal-200 rounded-2xl p-3.5">
+        <label class="font-black text-teal-900 block mb-1.5">👤 현장 진행자(가이드/OP) 선택</label>
+        <select id="mobManagerSelect" onchange="filterAssignedTours()" class="w-full border border-teal-300 rounded-xl px-3 py-2.5 bg-white font-bold text-sm">
+          <option value="ALL">전체 담당자 보기</option>
+          <option value="김민수 가이드">김민수 가이드</option>
+          <option value="이서연 가이드">이서연 가이드</option>
+          <option value="박지훈 OP">박지훈 OP</option>
+        </select>
+      </div>
+
+      <!-- ① 담당 행사 선택 -->
+      <div>
+        <label class="font-bold block mb-1">① 담당 행사 선택 *</label>
+        <select id="mobTourSelect" class="w-full border rounded-xl px-3 py-2.5 bg-white font-bold"></select>
+      </div>
+
+      <!-- ② 지출 날짜 & ③ 비용 내용 -->
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="font-bold block mb-1">② 지출 날짜</label>
+          <input type="date" id="mobExpDate" class="w-full border rounded-xl px-3 py-2.5">
+        </div>
+        <div>
+          <label class="font-bold block mb-1">③ 비용 내용</label>
+          <select id="mobExpCat" class="w-full border rounded-xl px-3 py-2.5 bg-white font-bold">
+            <option value="관광지 입장권">관광지 입장권</option>
+            <option value="식사/간식비">식사/간식비</option>
+            <option value="차량/주유/통행·주차">차량/주유/통행·주차</option>
+            <option value="호텔/숙박">호텔/숙박</option>
+            <option value="가이드/현지팁">가이드/현지팁</option>
+            <option value="기타 잡비">기타 잡비</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- 메모 -->
+      <div>
+        <label class="font-bold block mb-1">상세 메모</label>
+        <input type="text" id="mobExpMemo" placeholder="예: 해운대 팀 중식 6인분" class="w-full border rounded-xl px-3 py-2.5">
+      </div>
+
+      <!-- ④ 지출 금액 -->
+      <div>
+        <label class="font-bold block mb-1">④ 지출 금액 (KRW ₩) *</label>
+        <input type="number" id="mobExpAmount" placeholder="예: 185000" class="w-full border rounded-xl px-3 py-2.5 font-black text-base text-rose-600">
+      </div>
+
+      <!-- ⑤ 스마트폰 카메라 영수증 촬영 첨부 -->
+      <div class="border-2 border-dashed border-slate-300 rounded-2xl p-4 text-center bg-slate-50">
+        <label class="cursor-pointer block">
+          <div class="text-2xl mb-1">📸</div>
+          <div class="font-bold text-slate-700">⑤ 영수증 카메라 촬영 / 사진 첨부</div>
+          <div class="text-[11px] text-slate-400 mt-0.5">클릭하면 스마트폰 카메라 또는 앨범이 열립니다</div>
+          <input type="file" id="mobReceiptFile" accept="image/*" capture="environment" onchange="previewReceipt(event)" class="hidden">
+        </label>
+        <img id="mobReceiptPreview" class="hidden mt-3 max-h-40 mx-auto rounded-xl border shadow-sm">
+      </div>
+
+      <button onclick="submitMobileExpense()" class="w-full py-3.5 rounded-2xl bg-orange-500 hover:bg-orange-400 text-white font-black text-sm shadow-lg transition">
+        ✅ 비용·영수증 즉시 등록 (어드민 실시간 반영)
+      </button>
+
+      <!-- 최근 등록 내역 -->
+      <div class="pt-3 border-t">
+        <div class="font-bold text-slate-500 mb-2">📋 선택한 행사 최근 지출 내역</div>
+        <div id="mobRecentList" class="space-y-1.5 max-h-48 overflow-y-auto"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="mobToast" class="fixed bottom-5 left-1/2 -translate-x-1/2 hidden px-4 py-2.5 rounded-full bg-slate-900 text-white text-xs font-bold shadow-xl"></div>
+
+  <script src="assets/data.js"></script>
+  <script>
+    let receiptName = '';
+    let receiptDataUrl = '';
+
+    function showToast(msg) {
+      const el = document.getElementById('mobToast');
+      el.innerText = msg;
+      el.classList.remove('hidden');
+      setTimeout(() => el.classList.add('hidden'), 3000);
+    }
+
+    function filterAssignedTours() {
+      const db = TourStore.getDb();
+      const mgr = document.getElementById('mobManagerSelect').value;
+      const list = mgr === 'ALL' ? db.tourOperations : db.tourOperations.filter(t => t.manager === mgr);
+      const sel = document.getElementById('mobTourSelect');
+      sel.innerHTML = list.length === 0
+        ? '<option value="">배정된 행사가 없습니다</option>'
+        : list.map(t => `<option value="${t.tourCode}">[${t.tourCode}] ${t.title}</option>`).join('');
+      renderRecentExpenses();
+    }
+
+    function previewReceipt(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      receiptName = file.name;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        receiptDataUrl = ev.target.result;
+        const img = document.getElementById('mobReceiptPreview');
+        img.src = receiptDataUrl;
+        img.classList.remove('hidden');
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function submitMobileExpense() {
+      const tourCode = document.getElementById('mobTourSelect').value;
+      const amount = parseInt(document.getElementById('mobExpAmount').value) || 0;
+      const date = document.getElementById('mobExpDate').value || new Date().toISOString().split('T')[0];
+      const category = document.getElementById('mobExpCat').value;
+      const memo = document.getElementById('mobExpMemo').value.trim() || category;
+      const mgr = document.getElementById('mobManagerSelect').value;
+
+      if (!tourCode || amount <= 0) {
+        return showToast('⚠️ 담당 행사와 지출 금액을 정확히 입력하세요.');
+      }
+
+      const db = TourStore.getDb();
+      const op = db.tourOperations.find(t => t.tourCode === tourCode);
+      if (!op) return;
+
+      op.expenses.unshift({
+        id: 'exp_' + Date.now(),
+        date,
+        category,
+        memo,
+        amountKrw: amount,
+        receiptName: receiptName || 'mobile_receipt.jpg',
+        receiptDataUrl,
+        writer: `${mgr === 'ALL' ? '현장 진행자' : mgr}(모바일)`
+      });
+      TourStore.saveDb(db);
+
+      document.getElementById('mobExpAmount').value = '';
+      document.getElementById('mobExpMemo').value = '';
+      receiptName = '';
+      receiptDataUrl = '';
+      document.getElementById('mobReceiptPreview').classList.add('hidden');
+
+      renderRecentExpenses();
+      showToast(`🎉 ₩${amount.toLocaleString()} 지출 등록 완료! (PC 어드민 마진율 즉시 반영)`);
+    }
+
+    function renderRecentExpenses() {
+      const db = TourStore.getDb();
+      const tourCode = document.getElementById('mobTourSelect').value;
+      const op = db.tourOperations.find(t => t.tourCode === tourCode);
+      const box = document.getElementById('mobRecentList');
+      if (!op || op.expenses.length === 0) {
+        box.innerHTML = '<div class="text-slate-400 text-center py-3">등록된 지출이 없습니다.</div>';
+        return;
+      }
+      box.innerHTML = op.expenses.map(e => `
+        <div class="flex justify-between items-center p-2.5 rounded-xl bg-slate-50 border">
+          <div>
+            <div class="font-bold">[${e.category}] ${e.memo}</div>
+            <div class="text-[10px] text-slate-400">${e.date} · ${e.writer} ${e.receiptName ? '📎' + e.receiptName : ''}</div>
+          </div>
+          <strong class="text-rose-600">-₩${e.amountKrw.toLocaleString()}</strong>
+        </div>
+      `).join('');
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('mobExpDate').value = new Date().toISOString().split('T')[0];
+      filterAssignedTours();
+      document.getElementById('mobTourSelect').addEventListener('change', renderRecentExpenses);
+    });
+  </script>
+</body>
+</html>
