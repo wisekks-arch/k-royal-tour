@@ -1,7 +1,7 @@
 /**
  * K-Royal Inbound Tour — 통합 다국어(i18n) · 양방향 번역 · 알림 어댑터 · 로컬 DB 코어
  */
-const DB_STORAGE_KEY = 'K_ROYAL_TOUR_DB_V7';
+const DB_STORAGE_KEY = 'K_ROYAL_TOUR_DB_V8';
 const EXCHANGE_RATE_KRW_PER_USD = 1380;
 
 const LANGUAGE_CATALOG = [
@@ -24,8 +24,8 @@ const I18N_MESSAGES = {
     replayIntro: '전통 인트로 다시보기',
     welcomeTitle: 'Welcome to Korea',
     welcomeSub: '한국의 아름다운 전통과 현대가 어우러진 특별한 여정으로 초대합니다.',
-    menu_attractions: '지역별상품예약',
-    menu_regional: '지역별관광정보',
+    menu_attractions: '지역상품소개',
+    menu_regional: '지역상품예약',
     menu_limousine: '리무진버스',
     menu_airport: '공항 픽업',
     menu_inquiry: '여행문의',
@@ -56,8 +56,8 @@ const I18N_MESSAGES = {
     replayIntro: 'Replay Traditional Intro',
     welcomeTitle: 'Welcome to Korea',
     welcomeSub: 'We invite you to an unforgettable journey where Korean tradition meets modern luxury.',
-    menu_attractions: 'Regional Booking',
-    menu_regional: 'Regional Tours',
+    menu_attractions: 'Regional Tour Info',
+    menu_regional: 'Regional Booking',
     menu_limousine: 'Limousine Bus',
     menu_airport: 'Airport Pickup',
     menu_inquiry: 'Travel Inquiry',
@@ -88,8 +88,8 @@ const I18N_MESSAGES = {
     replayIntro: 'Xem lại Intro Truyền thống',
     welcomeTitle: 'Welcome to Korea',
     welcomeSub: 'Chào mừng quý khách đến với hành trình khám phá vẻ đẹp truyền thống và hiện đại của Hàn Quốc.',
-    menu_attractions: 'Đặt Tour Theo Vùng',
-    menu_regional: 'Thông tin Du lịch Vùng',
+    menu_attractions: 'Giới Thiệu Tour Vùng',
+    menu_regional: 'Đặt Tour Theo Vùng',
     menu_limousine: 'Xe Limousine',
     menu_airport: 'Đón Sân bay',
     menu_inquiry: 'Liên hệ & Tư vấn',
